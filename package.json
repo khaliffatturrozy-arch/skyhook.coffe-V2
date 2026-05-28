@@ -1,0 +1,14 @@
+{
+  "name": "skyhook-coffee-ecosystem",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Skyhook Coffee - Next-Generation AI Powered Luxury Hospitality Super Platform",
+  "scripts": {
+    "web:dev": "cd skyhook-web && npm run dev",
+    "web:build": "cd skyhook-web && npm run build",
+    "web:start": "cd skyhook-web && npm start",
+    "mobile:android": "cd skyhook-mobile && flutter run android",
+    "mobile:ios": "cd skyhook-mobile && flutter run ios",
+    "db:migrate": "cd skyhook-backend && psql -f schema.sql"
+  }
+}

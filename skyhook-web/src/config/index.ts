@@ -1,0 +1,68 @@
+export const SKYHOOK_CONFIG = {
+  name: "Skyhook Coffee",
+  tagline: "A Next-Generation Luxury Hospitality Technology Company",
+  description: "Premium rooftop lifestyle ecosystem powered by AI",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://skyhookcoffee.com",
+  supabase: {
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+    anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+  },
+  payments: {
+    midtrans: { clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY },
+    stripe: { publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY },
+  },
+  ai: {
+    openaiKey: process.env.OPENAI_API_KEY,
+    model: "gpt-4",
+  },
+  membership: {
+    tiers: [
+      { name: "Skyhook Royalty", minPoints: 10000, color: "#FFD700" },
+      { name: "VIP Elite", minPoints: 5000, color: "#C0C0C0" },
+      { name: "Platinum", minPoints: 2500, color: "#E5E4E2" },
+      { name: "Gold", minPoints: 1000, color: "#FFD700" },
+      { name: "Silver", minPoints: 500, color: "#A9A9A9" },
+      { name: "Member", minPoints: 0, color: "#8B7355" },
+    ],
+    leaderboard: {
+      royalty: { min: 1, max: 3 },
+      elite: { min: 4, max: 10 },
+      platinum: { min: 11, max: 25 },
+      gold: { min: 26, max: 50 },
+      silver: { min: 51, max: 100 },
+    },
+  },
+  outlets: {
+    cities: ["Jakarta", "Bali", "Bandung", "Surabaya", "Yogyakarta"],
+    countries: ["Indonesia", "Singapore", "Malaysia"],
+  },
+}
+
+export const ROUTES = {
+  home: "/",
+  menu: "/menu",
+  events: "/events",
+  rooftop: "/rooftop",
+  community: "/community",
+  leaderboard: "/leaderboard",
+  reservations: "/reservations",
+  wallet: "/wallet",
+  auth: "/auth",
+  admin: {
+    dashboard: "/admin/dashboard",
+    orders: "/admin/orders",
+    menu: "/admin/menu",
+    events: "/admin/events",
+    inventory: "/admin/inventory",
+    analytics: "/admin/analytics",
+    outlets: "/admin/outlets",
+    staff: "/admin/staff",
+    cms: "/admin/cms",
+    customers: "/admin/customers",
+    payments: "/admin/payments",
+  },
+  kds: "/kds",
+  pos: "/pos",
+  staff: "/staff",
+  offline: "/offline",
+} as const
