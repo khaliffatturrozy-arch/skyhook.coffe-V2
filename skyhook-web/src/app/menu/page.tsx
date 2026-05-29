@@ -180,13 +180,14 @@ export default function MenuPage() {
                 >
                   <div className={`relative h-28 md:h-32 ${item.image_url ? '' : `bg-gradient-to-br ${categoryGradients[catName] || 'from-gray-600 to-gray-800'}`} flex items-center justify-center overflow-hidden`}>
                     {item.image_url ? (
-                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                     ) : (
                       <span className="text-5xl md:text-6xl opacity-60">{categoryIcons[catName] || "🍽️"}</span>
                     )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                     {item.is_featured && (
-                      <span className="absolute top-2 right-2 px-2 py-0.5 bg-black/30 backdrop-blur-md text-white text-[9px] font-bold rounded-full flex items-center gap-1">
-                        <Sparkles className="w-2.5 h-2.5" /> Featured
+                      <span className="absolute top-2 right-2 px-2 py-0.5 bg-white/90 backdrop-blur-md text-[10px] font-bold text-[#212121] rounded-full flex items-center gap-1 shadow-sm">
+                        <Sparkles className="w-2.5 h-2.5 text-amber-500" /> Featured
                       </span>
                     )}
                   </div>
@@ -288,9 +289,10 @@ export default function MenuPage() {
                   ) : (
                     <span className="text-8xl opacity-40">{categoryIcons[categoryNameMap[selectedItem.category_id]] || "🍽️"}</span>
                   )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/15 to-transparent" />
                   {selectedItem.is_featured && (
-                    <span className="absolute top-4 left-4 px-3 py-1 bg-black/30 backdrop-blur-md text-white text-[10px] font-bold rounded-full flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" /> Featured
+                    <span className="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-md text-[10px] font-bold text-[#212121] rounded-full flex items-center gap-1 shadow-sm">
+                      <Sparkles className="w-3 h-3 text-amber-500" /> Featured
                     </span>
                   )}
                 </div>
