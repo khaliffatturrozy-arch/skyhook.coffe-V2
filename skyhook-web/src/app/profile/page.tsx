@@ -40,16 +40,24 @@ export default function ProfilePage() {
       const { data: { session: s } } = await supabase.auth.getSession()
       setSession(s)
       if (s?.user) {
-        const { data } = await supabase.from("users").select("*").eq("id", s.user.id).single()
-        if (data) {
-          setProfile(data)
-          setEditForm({
-            full_name: data.full_name || "",
-            nickname: data.nickname || "",
-            phone: data.phone || "",
-            avatar_url: data.avatar_url || "",
-          })
+        let { data } = await supabase.from("users").select("*").eq("id", s.user.id).single()
+        if (!data) {
+          const newUser = {
+            id: s.user.id,
+            email: s.user.email,
+            full_name: s.user.user_metadata?.full_name || s.user.user_metadata?.name || s.user.email?.split("@")[0] || "User",
+            avatar_url: s.user.user_metadata?.avatar_url || null,
+          }
+          await supabase.from("users").upsert(newUser)
+          data = newUser as UserProfile
         }
+        setProfile(data)
+        setEditForm({
+          full_name: data.full_name || "",
+          nickname: data.nickname || "",
+          phone: data.phone || "",
+          avatar_url: data.avatar_url || "",
+        })
       }
       setLoading(false)
     })()

@@ -24,8 +24,15 @@ export default function AuthPage() {
     e.preventDefault()
     setLoading(true); setError("")
     if (!loginForm.email || !loginForm.password) { setError("Please fill in all fields"); setLoading(false); return }
-    const { error: err } = await supabase.auth.signInWithPassword({ email: loginForm.email, password: loginForm.password })
+    const { data: loginData, error: err } = await supabase.auth.signInWithPassword({ email: loginForm.email, password: loginForm.password })
     if (err) { setError(err.message); setLoading(false); return }
+    if (loginData.user) {
+      await supabase.from("users").upsert({
+        id: loginData.user.id,
+        email: loginData.user.email,
+        full_name: loginData.user.user_metadata?.full_name || loginData.user.email?.split("@")[0] || "User",
+      }, { onConflict: "id", ignoreDuplicates: false })
+    }
     router.push("/dashboard")
   }
 
