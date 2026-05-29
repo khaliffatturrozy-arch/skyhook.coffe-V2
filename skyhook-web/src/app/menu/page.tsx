@@ -5,7 +5,13 @@ import { motion, AnimatePresence } from "framer-motion"
 import { createClient } from "@/lib/supabase"
 import type { MenuItem, Category } from "@/types"
 import { useCartStore } from "@/store/cart"
-import { Search, X, Minus, Plus, ShoppingBag, Clock, ChefHat, Sparkles } from "lucide-react"
+import { Search, X, Minus, Plus, ShoppingBag, Clock, ChefHat, Sparkles, Star } from "lucide-react"
+
+const POINTS_PER_1000 = 1
+
+function calcPoints(price: number) {
+  return Math.floor(price / 1000) * POINTS_PER_1000
+}
 
 const categoryGradients: Record<string, string> = {
   "Signature": "from-amber-700 to-amber-900",
@@ -193,14 +199,18 @@ export default function MenuPage() {
                     {item.description && (
                       <p className="text-xs text-[rgba(33,33,33,0.45)] mt-1 line-clamp-1">{item.description}</p>
                     )}
-                    <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center justify-between mt-1">
                       <span className="text-sm font-bold text-[#212121]">
                         IDR {Number(item.price).toLocaleString()}
                       </span>
-                      <span className="text-[10px] text-[rgba(33,33,33,0.35)] flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
+                      <span className="text-[9px] text-[rgba(33,33,33,0.35)] flex items-center gap-1">
+                        <Clock className="w-2.5 h-2.5" />
                         {item.preparation_time}m
                       </span>
+                    </div>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
+                      <span className="text-[10px] font-medium text-amber-700">+{calcPoints(Number(item.price))} pts</span>
                     </div>
                   </div>
                 </button>
@@ -305,10 +315,14 @@ export default function MenuPage() {
                     </p>
                   )}
 
-                  <div className="flex items-center gap-4 mb-6">
+                  <div className="flex items-center gap-4 mb-6 flex-wrap">
                     <div className="flex items-center gap-1.5 text-xs text-[rgba(33,33,33,0.45)]">
                       <Clock className="w-3.5 h-3.5" />
                       Prep time: {selectedItem.preparation_time} min
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full font-medium">
+                      <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                      Earn +{calcPoints(Number(selectedItem.price))} pts
                     </div>
                     {selectedItem.is_available ? (
                       <span className="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-medium">
