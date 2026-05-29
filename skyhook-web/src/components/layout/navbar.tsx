@@ -104,12 +104,15 @@ export function Navbar() {
               {isLoggedIn && userName ? userName.split(" ")[0] : "Sign In"}
             </Button>
           </Link>
-          <button
-            onClick={() => setIsMobileOpen(!isMobileOpen)}
-            className="p-2.5 text-[rgba(33,33,33,0.6)] hover:text-black transition-colors lg:hidden"
-          >
-            {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          <div className="flex items-center gap-0 sm:hidden">
+            {isLoggedIn && <CartBadge />}
+            <button
+              onClick={() => setIsMobileOpen(!isMobileOpen)}
+              className="p-2.5 text-[rgba(33,33,33,0.6)] hover:text-black transition-colors lg:hidden"
+            >
+              {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -132,9 +135,12 @@ export function Navbar() {
             >
               <div className="flex items-center justify-between px-5 h-16 border-b border-gray-100">
                 <img src={logoUrl} alt="Skyhook Coffee" className="w-8 h-8 object-contain" />
-                <button onClick={() => setIsMobileOpen(false)} className="p-2 text-gray-400 hover:text-black">
-                  <X className="w-5 h-5" />
-                </button>
+                <div className="flex items-center gap-1">
+                  {isLoggedIn && <CartBadge />}
+                  <button onClick={() => setIsMobileOpen(false)} className="p-2 text-gray-400 hover:text-black">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
               <div className="px-3 py-4 space-y-1 overflow-y-auto" style={{ height: "calc(100% - 64px)" }}>
                 {navLinks.map((link, i) => (
