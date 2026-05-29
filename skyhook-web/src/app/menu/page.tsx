@@ -184,7 +184,7 @@ export default function MenuPage() {
                     ) : (
                       <span className="text-5xl md:text-6xl opacity-60">{categoryIcons[catName] || "🍽️"}</span>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                    {item.image_url && <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />}
                     {item.is_featured && (
                       <span className="absolute top-2 right-2 px-2 py-0.5 bg-white/90 backdrop-blur-md text-[10px] font-bold text-[#212121] rounded-full flex items-center gap-1 shadow-sm">
                         <Sparkles className="w-2.5 h-2.5 text-amber-500" /> Featured
@@ -289,7 +289,7 @@ export default function MenuPage() {
                   ) : (
                     <span className="text-8xl opacity-40">{categoryIcons[categoryNameMap[selectedItem.category_id]] || "🍽️"}</span>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/15 to-transparent" />
+                  {selectedItem.image_url && <div className="absolute inset-0 bg-gradient-to-t from-black/15 to-transparent" />}
                   {selectedItem.is_featured && (
                     <span className="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-md text-[10px] font-bold text-[#212121] rounded-full flex items-center gap-1 shadow-sm">
                       <Sparkles className="w-3 h-3 text-amber-500" /> Featured
