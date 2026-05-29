@@ -16,11 +16,18 @@ const values = [
   { icon: Coffee, label: "Craft", desc: "Masters of our craft, from bean to brew, kitchen to table." },
 ]
 
-const roles = [
+const backOfficeRoles = [
+  { title: "Manager", count: 3, color: "from-emerald-400 to-teal-500" },
+  { title: "Finance", count: 2, color: "from-violet-400 to-purple-500" },
+  { title: "Marketing", count: 2, color: "from-pink-400 to-rose-500" },
+  { title: "Admin", count: 2, color: "from-sky-400 to-blue-500" },
+]
+
+const operationalRoles = [
   { title: "Barista", count: 6, color: "from-amber-400 to-orange-500" },
   { title: "Chef", count: 4, color: "from-rose-400 to-pink-500" },
   { title: "Server", count: 8, color: "from-blue-400 to-indigo-500" },
-  { title: "Manager", count: 3, color: "from-emerald-400 to-teal-500" },
+  { title: "Bartender", count: 3, color: "from-cyan-400 to-teal-500" },
 ]
 
 function Blob({ className, color }: { className?: string; color?: string }) {
@@ -48,7 +55,7 @@ export default function SkyTeamPage() {
           <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8 }}>
             <img src={teamImages.logo} alt="" className="w-16 h-16 mx-auto mb-6 opacity-90" />
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">
-              Our Team
+              Our Back Office
             </h1>
             <p className="text-white/60 text-lg md:text-xl max-w-lg mx-auto font-light">
               The people behind the pour.
@@ -115,9 +122,9 @@ export default function SkyTeamPage() {
         </div>
       </section>
 
-      {/* Team photo section */}
+      {/* Our Back Office */}
       <section className="relative py-20">
-        <Blob className="absolute -right-40 -bottom-20 w-[28rem] h-[28rem] text-rose-100/40 pointer-events-none" />
+        <Blob className="absolute -left-40 top-1/2 -translate-y-1/2 w-[28rem] h-[28rem] text-emerald-100/40 pointer-events-none" />
         <div className="section-padding max-w-5xl mx-auto">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <motion.div
@@ -126,14 +133,17 @@ export default function SkyTeamPage() {
               viewport={{ once: true }}
               transition={{ duration: 0.7 }}
             >
-              <span className="text-xs font-semibold text-amber-600 uppercase tracking-widest">Behind the scenes</span>
-              <h2 className="text-3xl font-bold text-[#212121] mt-2 mb-4">Crafted together</h2>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 mb-4">
+                <Users className="w-3 h-3 text-emerald-600" />
+                <span className="text-[10px] font-semibold text-emerald-700 uppercase tracking-widest">Back Office</span>
+              </div>
+              <h2 className="text-3xl font-bold text-[#212121] mb-4">Behind the scenes</h2>
               <p className="text-sm text-[rgba(33,33,33,0.6)] leading-relaxed mb-6">
-                From early morning prep to late-night service, every role matters. Our kitchen, bar, and service
-                teams work in harmony to create an experience that feels like home — elevated.
+                The strategists, organizers, and innovators who keep everything running smoothly
+                from behind the curtain. Every great team has a strong foundation.
               </p>
               <div className="grid grid-cols-2 gap-3">
-                {roles.map((r) => (
+                {backOfficeRoles.map((r) => (
                   <div key={r.title} className="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
                     <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${r.color} flex items-center justify-center`}>
                       <Users className="w-3.5 h-3.5 text-white" />
@@ -154,8 +164,59 @@ export default function SkyTeamPage() {
               className="relative"
             >
               <div className="relative rounded-2xl overflow-hidden shadow-lg">
+                <img src={teamImages.hero} alt="" className="w-full h-auto object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Our Operational Team */}
+      <section className="relative py-20 bg-gray-50/50">
+        <Blob className="absolute -right-40 -bottom-20 w-[28rem] h-[28rem] text-amber-100/40 pointer-events-none" />
+        <div className="section-padding max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
+              className="order-2 md:order-1"
+            >
+              <div className="relative rounded-2xl overflow-hidden shadow-lg">
                 <img src={teamImages.section} alt="" className="w-full h-auto object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
+              className="order-1 md:order-2"
+            >
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-100 mb-4">
+                <Coffee className="w-3 h-3 text-amber-600" />
+                <span className="text-[10px] font-semibold text-amber-700 uppercase tracking-widest">Operational</span>
+              </div>
+              <h2 className="text-3xl font-bold text-[#212121] mb-4">Our Operational Team</h2>
+              <p className="text-sm text-[rgba(33,33,33,0.6)] leading-relaxed mb-6">
+                From early morning prep to late-night service, every role matters. Our kitchen, bar, and service
+                teams work in harmony to create an experience that feels like home — elevated.
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {operationalRoles.map((r) => (
+                  <div key={r.title} className="flex items-center gap-3 bg-white rounded-xl p-3 border border-gray-100">
+                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${r.color} flex items-center justify-center`}>
+                      <Users className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-[#212121]">{r.count}</p>
+                      <p className="text-[10px] text-[rgba(33,33,33,0.4)] uppercase tracking-wider">{r.title}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </motion.div>
           </div>
