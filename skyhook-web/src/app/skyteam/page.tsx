@@ -36,25 +36,25 @@ export default function SkyTeamPage() {
     <main className="min-h-screen bg-white overflow-hidden">
 
       {/* Hero */}
-      <section className="relative h-[70vh] min-h-[500px] flex items-end justify-center">
+      <section className="relative h-[70vh] min-h-[500px] flex items-center justify-center">
         <div className="absolute inset-0">
           <img src={teamImages.hero} alt="" className="w-full h-full object-cover object-bottom" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
         </div>
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-10 text-center pb-10 md:pb-14 px-4"
-        >
-          <img src={teamImages.logo} alt="" className="w-14 h-14 mx-auto mb-4 opacity-90" />
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-2 tracking-tight drop-shadow-sm">
-            Our Team
-          </h1>
-          <p className="text-white/70 text-base md:text-lg max-w-md mx-auto font-light drop-shadow-sm">
-            The people behind the pour.
-          </p>
-        </motion.div>
+        <Blob className="absolute -top-20 -right-20 w-80 h-80 text-white/5" />
+        <Blob className="absolute -bottom-20 -left-20 w-96 h-96 text-white/[0.03]" />
+        <div className="relative z-10 text-center px-4">
+          <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8 }}>
+            <img src={teamImages.logo} alt="" className="w-16 h-16 mx-auto mb-6 opacity-90" />
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">
+              Our Team
+            </h1>
+            <p className="text-white/60 text-lg md:text-xl max-w-lg mx-auto font-light">
+              The people behind the pour.
+            </p>
+          </motion.div>
+        </div>
       </section>
 
       {/* Intro */}
