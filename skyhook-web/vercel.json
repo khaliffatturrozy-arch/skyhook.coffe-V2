@@ -3,7 +3,7 @@
   "buildCommand": "next build",
   "outputDirectory": ".next",
   "installCommand": "npm install",
-  "regions": ["sin1", "hkg1"],
+  "regions": ["sin1"],
   "headers": [
     {
       "source": "/(.*)",
