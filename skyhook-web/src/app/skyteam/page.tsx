@@ -1,12 +1,11 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Coffee, Heart, Sparkles, Users, Star, ChevronRight } from "lucide-react"
+import { Coffee, Heart, Users, Star, ChevronRight } from "lucide-react"
 
 const teamImages = {
   hero: "https://brdsg.com/img/800/brsl50twbrtoukb1wa_1/CP2oV8jReeCTfAICP2GfUN1FPxMCLQKWZtofRYqfoMA.jpg",
   section: "https://brdsg.com/img/800/brsl50twbrtoukb1wa_1/C41yLrGkeJAEs51C41omHPLjPwp1h7TMKPUYGZNv5CQ.jpg",
-  logo: "https://brdsg.com/img/200/brsl50twbrtoukb1wa_1/C4bLWTcRuGIL0MnC4bOF7EzFvjAcsTEefj119S6Fhg.png",
 }
 
 const values = [
@@ -36,24 +35,9 @@ export default function SkyTeamPage() {
     <main className="min-h-screen bg-white overflow-hidden">
 
       {/* Hero */}
-      <section className="relative h-[70vh] min-h-[500px] flex items-center justify-center">
+      <section className="relative h-[60vh] min-h-[400px]">
         <div className="absolute inset-0">
-          <img src={teamImages.hero} alt="" className="w-full h-full object-cover object-top" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70" />
-          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
-        </div>
-        <Blob className="absolute -top-20 -right-20 w-80 h-80 text-white/5" />
-        <Blob className="absolute -bottom-20 -left-20 w-96 h-96 text-white/[0.03]" />
-        <div className="relative z-10 text-center px-4">
-          <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8 }}>
-            <img src={teamImages.logo} alt="" className="w-16 h-16 mx-auto mb-6 opacity-90" />
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">
-              Our Team
-            </h1>
-            <p className="text-white/60 text-lg md:text-xl max-w-lg mx-auto font-light">
-              The people behind the pour.
-            </p>
-          </motion.div>
+          <img src={teamImages.hero} alt="" className="w-full h-full object-cover object-bottom" />
         </div>
       </section>
 
