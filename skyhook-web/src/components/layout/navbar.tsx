@@ -15,7 +15,7 @@ const navLinks = [
   { href: ROUTES.home, label: "Home" },
   { href: "/reservasi", label: "Reservation" },
   { href: "/contact", label: "Contact" },
-  { href: "https://www.google.com/maps/place/Skyhook+Coffee+Rooftop+House+and+Kitchen/@-6.2848856,106.8793007,15z/data=!4m2!3m1!1s0x0:0xc20280c08c993aec", label: "Location", external: true },
+  { href: "/location", label: "Location" },
   { href: "/about", label: "About Us" },
   { href: "/career", label: "Career" },
   { href: "/investor", label: "Investor" },
@@ -67,31 +67,22 @@ export function Navbar() {
         </Link>
 
         <div className="hidden lg:flex items-center gap-1">
-          {navLinks.map((link) =>
-            link.external ? (
-              <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer"
-                className="relative px-3 py-2 text-sm font-medium text-[rgba(33,33,33,0.7)] hover:text-black transition-colors group"
-              >
-                {link.label}
-                <span className="absolute bottom-0 left-2 right-2 h-[2px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
-              </a>
-            ) : (
-              <Link key={link.href} href={link.href}
-                className={cn(
-                  "relative px-3 py-2 text-sm font-medium transition-colors group",
-                  pathname === link.href
-                    ? "text-black"
-                    : "text-[rgba(33,33,33,0.7)] hover:text-black"
-                )}
-              >
-                {link.label}
-                <span className={cn(
-                  "absolute bottom-0 left-2 right-2 h-[2px] bg-black transition-transform origin-left",
-                  pathname === link.href ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                )} />
-              </Link>
-            )
-          )}
+          {navLinks.map((link) => (
+            <Link key={link.href} href={link.href}
+              className={cn(
+                "relative px-3 py-2 text-sm font-medium transition-colors group",
+                pathname === link.href
+                  ? "text-black"
+                  : "text-[rgba(33,33,33,0.7)] hover:text-black"
+              )}
+            >
+              {link.label}
+              <span className={cn(
+                "absolute bottom-0 left-2 right-2 h-[2px] bg-black transition-transform origin-left",
+                pathname === link.href ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+              )} />
+            </Link>
+          ))}
         </div>
 
         <div className="flex items-center gap-1">
@@ -153,7 +144,7 @@ export function Navbar() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.05 }}
                   >
-                    {link.external ? (
+                    {link.href.startsWith("http") ? (
                       <a href={link.href} target="_blank" rel="noopener noreferrer"
                         onClick={() => setIsMobileOpen(false)}
                         className="block px-4 py-3 rounded-xl text-sm font-medium text-[rgba(33,33,33,0.81)] hover:text-black hover:bg-gray-50 transition-colors"
