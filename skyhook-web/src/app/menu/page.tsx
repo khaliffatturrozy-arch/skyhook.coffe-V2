@@ -14,37 +14,35 @@ function calcPoints(price: number) {
 }
 
 const categoryGradients: Record<string, string> = {
-  "Signature": "from-amber-700 to-amber-900",
+  "Nasi Goreng & Rice": "from-orange-600 to-red-700",
+  "Bowl": "from-lime-600 to-green-700",
+  "Bite / Snack": "from-amber-500 to-orange-600",
+  "Pasta, Mie & Steak": "from-rose-600 to-red-800",
+  "Ice Cream": "from-pink-400 to-rose-500",
+  "Cake": "from-yellow-600 to-amber-700",
+  "Coffee": "from-amber-800 to-amber-950",
+  "Signature Coffee": "from-amber-700 to-amber-900",
+  "Signature Non Coffee": "from-violet-500 to-purple-700",
   "Non Coffee": "from-rose-500 to-pink-600",
-  "Manual Coffee": "from-amber-800 to-amber-950",
-  "BITE": "from-orange-500 to-red-600",
-  "MILKY": "from-sky-400 to-blue-500",
-  "COFFEE": "from-amber-600 to-amber-800",
-  "TEA": "from-emerald-500 to-teal-600",
-  "Platter Share": "from-violet-500 to-purple-700",
-  "Rice": "from-orange-600 to-amber-700",
-  "Croissant": "from-yellow-600 to-amber-700",
-  "Pasta & Steak": "from-red-600 to-rose-700",
-  "Rice Bowl": "from-lime-500 to-green-600",
-  "Snack": "from-orange-400 to-red-500",
-  "Cake": "from-pink-400 to-rose-500",
+  "Soda": "from-cyan-500 to-blue-600",
+  "Milkshake": "from-sky-400 to-blue-500",
+  "Flavour Tea": "from-emerald-500 to-teal-600",
 }
 
 const categoryIcons: Record<string, string> = {
-  "Signature": "☕",
-  "Non Coffee": "🧋",
-  "Manual Coffee": "🫘",
-  "BITE": "🥐",
-  "MILKY": "🥛",
-  "COFFEE": "☕",
-  "TEA": "🍵",
-  "Platter Share": "🥘",
-  "Rice": "🍚",
-  "Croissant": "🥐",
-  "Pasta & Steak": "🍝",
-  "Rice Bowl": "🥣",
-  "Snack": "🍟",
+  "Nasi Goreng & Rice": "🍚",
+  "Bowl": "🥣",
+  "Bite / Snack": "🍟",
+  "Pasta, Mie & Steak": "🍝",
+  "Ice Cream": "🍦",
   "Cake": "🍰",
+  "Coffee": "☕",
+  "Signature Coffee": "✨",
+  "Signature Non Coffee": "🧋",
+  "Non Coffee": "🥤",
+  "Soda": "🥂",
+  "Milkshake": "🥛",
+  "Flavour Tea": "🍵",
 }
 
 export default function MenuPage() {
@@ -113,7 +111,7 @@ export default function MenuPage() {
             </div>
             <div>
               <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Our Menu</h1>
-              <p className="text-white/50 text-sm mt-1">Handcrafted with love, served with passion</p>
+              <p className="text-white/50 text-sm mt-1">Discover our full range of food & beverages</p>
             </div>
           </div>
 
