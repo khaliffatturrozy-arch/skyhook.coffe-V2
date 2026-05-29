@@ -14,7 +14,7 @@ import { CartBadge } from "@/components/cart/cart-drawer"
 const navLinks = [
   { href: ROUTES.home, label: "Home" },
   { href: "/reservasi", label: "Reservation" },
-  { href: "https://wa.me/6281774934980?text=Hallo%20admin%20Skyhook%20Coffee", label: "Contact", external: true },
+  { href: "/contact", label: "Contact" },
   { href: "https://www.google.com/maps/place/Skyhook+Coffee+Rooftop+House+and+Kitchen/@-6.2848856,106.8793007,15z/data=!4m2!3m1!1s0x0:0xc20280c08c993aec", label: "Location", external: true },
   { href: "/about", label: "About Us" },
   { href: "/career", label: "Career" },
