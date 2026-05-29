@@ -47,6 +47,14 @@ export default function ProfilePage() {
             email: s.user.email,
             full_name: s.user.user_metadata?.full_name || s.user.user_metadata?.name || s.user.email?.split("@")[0] || "User",
             avatar_url: s.user.user_metadata?.avatar_url || null,
+            nickname: null,
+            phone: null,
+            membership_tier: "Regular",
+            loyalty_points: 0,
+            total_orders: 0,
+            total_spent: 0,
+            created_at: new Date().toISOString(),
+            last_visit: null,
           }
           await supabase.from("users").upsert(newUser)
           data = newUser as UserProfile
