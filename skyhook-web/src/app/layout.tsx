@@ -19,9 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="h-full">
       <body className="min-h-full flex flex-col bg-white text-[rgba(33,33,33,0.81)] antialiased">
           <Navbar />
-          <div className="pb-14 lg:pb-0 flex-1 flex flex-col">
-            {children}
-          </div>
+          {children}
           <Footer />
           <CartDrawer />
       </body>

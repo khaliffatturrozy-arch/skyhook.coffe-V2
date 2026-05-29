@@ -10,7 +10,6 @@ import { Menu, X, User } from "lucide-react"
 import { ROUTES } from "@/config"
 import { NotificationBell } from "@/components/layout/notification-bell"
 import { CartBadge } from "@/components/cart/cart-drawer"
-import { useCartStore } from "@/store/cart"
 
 const navLinks = [
   { href: ROUTES.home, label: "Home" },
@@ -59,8 +58,8 @@ export function Navbar() {
 
   return (
     <header className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-      isScrolled ? "bg-white/90 backdrop-blur-lg shadow-sm" : "bg-white"
+      "fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-sm transition-all duration-300",
+      isScrolled && "shadow-md"
     )}>
       <nav className="section-padding max-w-7xl mx-auto flex items-center justify-between h-16 md:h-20">
         <Link href={ROUTES.home} className="flex items-center gap-2 shrink-0">
@@ -204,50 +203,6 @@ export function Navbar() {
           </>
         )}
       </AnimatePresence>
-      {/* Mobile Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 lg:hidden safe-area-bottom">
-        <div className="flex items-center justify-around h-14 px-2">
-          <NavItem href="/" icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>} label="Home" />
-          <NavItem href="/menu" icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>} label="Menu" />
-          <CartBottomNavButton />
-          <NavItem href="/reservasi" icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>} label="Book" />
-          <NavItem href={isLoggedIn ? "/profile" : "/auth"} icon={<User className="w-5 h-5" />} label={isLoggedIn && userName ? userName.split(" ")[0] : "Sign In"} />
-        </div>
-      </nav>
     </header>
-  )
-}
-
-function NavItem({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
-  const pathname = usePathname()
-  const isActive = pathname === href
-  return (
-    <Link href={href}
-      className={`relative flex flex-col items-center justify-center px-3 py-1 text-[10px] font-medium transition-colors gap-0.5 ${
-        isActive ? "text-black" : "text-[rgba(33,33,33,0.5)] hover:text-black"
-      }`}
-    >
-      {icon}
-      <span>{label}</span>
-      {isActive && <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-5 h-0.5 bg-black rounded-full" />}
-    </Link>
-  )
-}
-
-function CartBottomNavButton() {
-  const { items, toggleCart } = useCartStore()
-  const count = items.reduce((s, i) => s + i.quantity, 0)
-  return (
-    <button onClick={toggleCart}
-      className="relative flex flex-col items-center justify-center px-3 py-1 text-[10px] font-medium text-[rgba(33,33,33,0.5)] hover:text-black transition-colors gap-0.5"
-    >
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
-      <span>Cart</span>
-      {count > 0 && (
-        <span className="absolute -top-0.5 right-1 w-4 h-4 rounded-full bg-[#313131] text-white text-[8px] font-bold flex items-center justify-center">
-          {count > 9 ? "9+" : count}
-        </span>
-      )}
-    </button>
   )
 }
