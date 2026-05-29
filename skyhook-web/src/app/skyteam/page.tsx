@@ -6,6 +6,7 @@ import { Coffee, Heart, Users, Star, ChevronRight } from "lucide-react"
 const teamImages = {
   hero: "https://brdsg.com/img/800/brsl50twbrtoukb1wa_1/CP2oV8jReeCTfAICP2GfUN1FPxMCLQKWZtofRYqfoMA.jpg",
   section: "https://brdsg.com/img/800/brsl50twbrtoukb1wa_1/C41yLrGkeJAEs51C41omHPLjPwp1h7TMKPUYGZNv5CQ.jpg",
+  logo: "https://brdsg.com/img/200/brsl50twbrtoukb1wa_1/C4bLWTcRuGIL0MnC4bOF7EzFvjAcsTEefj119S6Fhg.png",
 }
 
 const values = [
@@ -35,10 +36,25 @@ export default function SkyTeamPage() {
     <main className="min-h-screen bg-white overflow-hidden">
 
       {/* Hero */}
-      <section className="relative h-[60vh] min-h-[400px]">
+      <section className="relative h-[70vh] min-h-[500px] flex items-end justify-center">
         <div className="absolute inset-0">
           <img src={teamImages.hero} alt="" className="w-full h-full object-cover object-bottom" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
         </div>
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-10 text-center pb-10 md:pb-14 px-4"
+        >
+          <img src={teamImages.logo} alt="" className="w-14 h-14 mx-auto mb-4 opacity-90" />
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-2 tracking-tight drop-shadow-sm">
+            Our Team
+          </h1>
+          <p className="text-white/70 text-base md:text-lg max-w-md mx-auto font-light drop-shadow-sm">
+            The people behind the pour.
+          </p>
+        </motion.div>
       </section>
 
       {/* Intro */}
