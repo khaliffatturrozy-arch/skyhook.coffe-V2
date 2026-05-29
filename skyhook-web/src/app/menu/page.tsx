@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Search, ShoppingBag, Coffee, Sparkles } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import type { MenuItem, Category } from "@/types"
+import { useCartStore } from "@/store/cart"
 
 export default function MenuPage() {
   const [categories, setCategories] = useState<Category[]>([])
@@ -14,6 +15,7 @@ export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState("All")
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
+  const addItem = useCartStore((s) => s.addItem)
 
   useEffect(() => {
     const supabase = createClient()
@@ -142,12 +144,9 @@ export default function MenuPage() {
                       <span className="text-white/10">|</span>
                       <span className="text-[11px] text-white/30">{item.preparation_time} min</span>
                     </div>
-                    <Button variant="primary" size="sm" className="w-full opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="primary" size="sm" className="w-full opacity-0 group-hover:opacity-100 transition-opacity max-sm:opacity-100" onClick={() => addItem({ id: item.id, name: item.name, price: Number(item.price) })}>
                       <ShoppingBag className="w-4 h-4 mr-2" />
                       Add to Order
-                    </Button>
-                    <Button variant="ghost" size="sm" className="w-full opacity-100 group-hover:opacity-0 transition-opacity -mt-10">
-                      View Details
                     </Button>
                   </div>
                 </GlassCard>

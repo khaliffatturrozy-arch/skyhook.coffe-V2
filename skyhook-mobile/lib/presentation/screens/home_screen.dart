@@ -75,6 +75,35 @@ class HomeScreen extends ConsumerWidget {
                     const SizedBox(width: 12),
                     _QuickAction(label: 'Orders', icon: Icons.receipt_outlined, color: AppTheme.skyhookWarm, onTap: () => context.go('/orders')),
                   ]),
+                  const SizedBox(height: 20),
+
+                  // AI Assistant
+                  GestureDetector(
+                    onTap: () => context.go('/ai'),
+                    child: GlassCard(
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 48, height: 48,
+                            decoration: BoxDecoration(shape: BoxShape.circle, gradient: AppTheme.amberGradient),
+                            child: const Icon(Icons.auto_awesome, color: Colors.black, size: 22),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Skyhook AI', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
+                                Text('Ask me anything — menu, events, reservations', style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.5))),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.arrow_forward_ios, size: 14, color: Colors.white.withOpacity(0.3)),
+                        ],
+                      ),
+                    ),
+                  ),
+
                   const SizedBox(height: 28),
 
                   // Featured Menu

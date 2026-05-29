@@ -7,7 +7,7 @@ import { ROUTES } from "@/config"
 import {
   LayoutDashboard, ShoppingBag, Utensils, Calendar,
   Package, BarChart3, Store, Users, Settings, Wallet,
-  ChevronLeft,
+  Bell, ChevronLeft,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -22,6 +22,7 @@ const sidebarLinks = [
   { href: ROUTES.admin.staff, label: "Staff", icon: Users },
   { href: ROUTES.admin.customers, label: "Customers", icon: Users },
   { href: ROUTES.admin.payments, label: "Payments", icon: Wallet },
+  { href: ROUTES.admin.waiterCalls, label: "Waiter Calls", icon: Bell },
   { href: ROUTES.admin.cms, label: "CMS", icon: Settings },
 ]
 

@@ -13,6 +13,7 @@ import '../presentation/screens/reservation_screen.dart';
 import '../presentation/screens/wallet_screen.dart';
 import '../presentation/screens/staff_screen.dart';
 import '../presentation/screens/kds_screen.dart';
+import '../presentation/screens/ai_assistant_screen.dart';
 
 class _ScaffoldWithNav extends StatefulWidget {
   final Widget child;
@@ -102,6 +103,7 @@ final router = GoRouter(
         GoRoute(path: '/reservation', builder: (_, __) => const ReservationScreen()),
         GoRoute(path: '/staff', builder: (_, __) => const StaffScreen()),
         GoRoute(path: '/kds', builder: (_, __) => const KdsScreen()),
+        GoRoute(path: '/ai', builder: (_, __) => const AiAssistantScreen()),
       ],
     ),
   ],

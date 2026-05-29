@@ -6,8 +6,10 @@ import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/utils/cn"
 import { Button } from "@/components/ui/button"
-import { Menu, X, User, Search, ShoppingBag } from "lucide-react"
+import { Menu, X, User, Search } from "lucide-react"
 import { ROUTES } from "@/config"
+import { NotificationBell } from "@/components/layout/notification-bell"
+import { CartBadge } from "@/components/cart/cart-drawer"
 
 const navLinks = [
   { href: ROUTES.home, label: "Home" },
@@ -76,12 +78,8 @@ export function Navbar() {
           <button className="p-2 text-white/60 hover:text-white transition-colors hidden sm:block">
             <Search className="w-5 h-5" />
           </button>
-          <button className="p-2 text-white/60 hover:text-white transition-colors relative hidden sm:block">
-            <ShoppingBag className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-skyhook-amber text-black text-[10px] font-bold rounded-full flex items-center justify-center">
-              0
-            </span>
-          </button>
+          <CartBadge />
+          <NotificationBell />
           <Link href={ROUTES.auth}>
             <Button variant="primary" size="sm" className="hidden sm:inline-flex">
               <User className="w-4 h-4 mr-2" />
@@ -121,6 +119,12 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              <Link href={ROUTES.profile} onClick={() => setIsMobileOpen(false)} className="block px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors">
+                <User className="w-4 h-4 inline mr-2" />Profile
+              </Link>
+              <Link href={ROUTES.achievements} onClick={() => setIsMobileOpen(false)} className="block px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors">
+                Achievements
+              </Link>
               <Link href={ROUTES.auth} onClick={() => setIsMobileOpen(false)}>
                 <Button variant="primary" className="w-full mt-4">
                   <User className="w-4 h-4 mr-2" />

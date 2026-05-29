@@ -1,36 +1,118 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { motion } from "framer-motion"
 import { GlassCard } from "@/components/ui/glass-card"
 import { Button } from "@/components/ui/button"
-import { Clock, ChefHat, CheckCircle2, Play, RefreshCw } from "lucide-react"
+import { Clock, ChefHat, CheckCircle2, Play, Loader2, RefreshCw } from "lucide-react"
+import { createClient } from "@/lib/supabase"
 
-const initialOrders = [
-  { id: "#SH-2843", table: "R12", items: ["Skyhook Signature x2", "Butter Croissant x1"], time: "2 min", status: "pending" as const },
-  { id: "#SH-2842", table: "VIP1", items: ["Gold Cappuccino x1", "Truffle Fries x1"], time: "5 min", status: "preparing" as const },
-  { id: "#SH-2841", table: "G5", items: ["Rooftop Matcha x1", "Midnight Affogato x2"], time: "8 min", status: "preparing" as const },
-  { id: "#SH-2840", table: "S3", items: ["Smoked Old Fashioned x2"], time: "12 min", status: "pending" as const },
-  { id: "#SH-2839", table: "T8", items: ["Tropical Cold Brew x3", "Berry Matcha Dream x1"], time: "15 min", status: "preparing" as const },
-]
+interface OrderItem {
+  id: string
+  menu_item_name: string
+  quantity: number
+  status: string
+}
 
-type OrderStatus = "pending" | "preparing" | "ready" | "completed"
+interface TableInfo {
+  table_number: string
+}
 
 interface Order {
-  id: string; table: string; items: string[]; time: string; status: OrderStatus
+  id: string
+  table_id: string | null
+  tables: TableInfo | null
+  status: "pending" | "preparing" | "ready" | "completed" | "cancelled"
+  created_at: string
+  order_items: OrderItem[]
+}
+
+function elapsed(created: string) {
+  const diff = Date.now() - new Date(created).getTime()
+  const m = Math.floor(diff / 60000)
+  const s = Math.floor((diff % 60000) / 1000)
+  return m > 0 ? `${m}m ${s}s` : `${s}s`
 }
 
 export default function KDSPage() {
-  const [orders, setOrders] = useState<Order[]>(initialOrders)
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
+  const [now, setNow] = useState(Date.now())
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const channelRef = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null)
 
-  const updateStatus = (id: string, newStatus: OrderStatus) => {
-    setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o))
+  const supabase = useCallback(() => createClient(), [])
+
+  const fetchOrders = useCallback(async () => {
+    const client = supabase()
+    const { data } = await client
+      .from("orders")
+      .select("*, tables(table_number), order_items(*)")
+      .in("status", ["pending", "preparing", "ready"])
+      .order("created_at", { ascending: false })
+    if (data) setOrders(data as unknown as Order[])
+    setLoading(false)
+  }, [supabase])
+
+  useEffect(() => {
+    fetchOrders()
+
+    timerRef.current = setInterval(() => setNow(Date.now()), 1000)
+
+    const client = supabase()
+    const channel = client
+      .channel("kds-orders")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "orders" },
+        () => fetchOrders()
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "orders" },
+        () => fetchOrders()
+      )
+      .subscribe()
+
+    channelRef.current = channel
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+      client.removeChannel(channel)
+    }
+  }, [fetchOrders, supabase])
+
+  const updateStatus = async (id: string, status: string) => {
+    const prev = [...orders]
+    setOrders((o) => o.map((ord) => (ord.id === id ? { ...ord, status: status as Order["status"] } : ord)))
+    try {
+      const res = await fetch("/api/orders/status", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order_id: id, status }),
+      })
+      if (!res.ok) {
+        setOrders(prev)
+      }
+    } catch {
+      setOrders(prev)
+    }
   }
 
+  const activeOrders = orders.filter((o) => o.status !== "completed" && o.status !== "cancelled")
+
   const statusCounts = {
-    pending: orders.filter(o => o.status === "pending").length,
-    preparing: orders.filter(o => o.status === "preparing").length,
-    ready: orders.filter(o => o.status === "ready").length,
+    pending: activeOrders.filter((o) => o.status === "pending").length,
+    preparing: activeOrders.filter((o) => o.status === "preparing").length,
+    ready: activeOrders.filter((o) => o.status === "ready").length,
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-skyhook-black flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-skyhook-amber" />
+      </div>
+    )
   }
 
   return (
@@ -49,9 +131,9 @@ export default function KDSPage() {
               <Clock className="w-4 h-4 text-skyhook-amber" />
               <span className="text-white/60">{new Date().toLocaleTimeString()}</span>
             </div>
-            <Button variant="secondary" size="sm">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh
+            <Button variant="secondary" size="sm" onClick={fetchOrders}>
+              <RefreshCw className="w-3 h-3 mr-2" />
+              Sync
             </Button>
           </div>
         </div>
@@ -69,13 +151,21 @@ export default function KDSPage() {
           ))}
         </div>
 
+        {activeOrders.length === 0 && (
+          <div className="text-center py-20">
+            <ChefHat className="w-12 h-12 text-white/10 mx-auto mb-4" />
+            <p className="text-white/20 text-lg">No active orders</p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {orders.map((order, i) => (
+          {activeOrders.map((order, i) => (
             <motion.div
               key={order.id}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.05 }}
+              transition={{ delay: i * 0.03 }}
+              layout
             >
               <GlassCard className={`p-4 border-l-4 ${
                 order.status === "pending" ? "border-l-skyhook-amber" :
@@ -85,8 +175,12 @@ export default function KDSPage() {
               }`}>
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <span className="text-white font-bold text-lg">{order.id}</span>
-                    <span className="text-white/30 text-sm ml-2">| Table {order.table}</span>
+                    <span className="text-white font-bold text-lg">
+                      #{order.id.slice(0, 6).toUpperCase()}
+                    </span>
+                    <span className="text-white/30 text-sm ml-2">
+                      | Table {order.tables?.table_number || "—"}
+                    </span>
                   </div>
                   <span className={`text-xs px-2 py-1 rounded-full ${
                     order.status === "pending" ? "bg-skyhook-amber/10 text-skyhook-amber" :
@@ -99,15 +193,23 @@ export default function KDSPage() {
                 </div>
 
                 <div className="space-y-1 mb-4">
-                  {order.items.map((item, idx) => (
-                    <p key={idx} className="text-white/60 text-sm">{item}</p>
+                  {order.order_items?.map((item) => (
+                    <p key={item.id} className="text-white/60 text-sm">
+                      {item.menu_item_name} <span className="text-white/30">x{item.quantity}</span>
+                    </p>
                   ))}
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-white/30 text-xs flex items-center gap-1">
+                  <span className={`text-xs flex items-center gap-1 ${
+                    Date.now() - new Date(order.created_at).getTime() > 600000
+                      ? "text-red-400"
+                      : Date.now() - new Date(order.created_at).getTime() > 300000
+                      ? "text-skyhook-amber"
+                      : "text-white/30"
+                  }`}>
                     <Clock className="w-3 h-3" />
-                    {order.time}
+                    {elapsed(order.created_at)}
                   </span>
                   <div className="flex gap-1">
                     {order.status === "pending" && (

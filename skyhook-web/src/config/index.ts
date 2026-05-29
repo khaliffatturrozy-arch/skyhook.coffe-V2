@@ -47,6 +47,8 @@ export const ROUTES = {
   leaderboard: "/leaderboard",
   reservations: "/reservations",
   wallet: "/wallet",
+  profile: "/profile",
+  achievements: "/achievements",
   auth: "/auth",
   admin: {
     dashboard: "/admin/dashboard",
@@ -60,6 +62,7 @@ export const ROUTES = {
     cms: "/admin/cms",
     customers: "/admin/customers",
     payments: "/admin/payments",
+    waiterCalls: "/admin/waiter-calls",
   },
   kds: "/kds",
   pos: "/pos",

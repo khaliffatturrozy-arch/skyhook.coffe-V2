@@ -1,12 +1,15 @@
 import OpenAI from "openai"
 import type { SupabaseClient } from "@supabase/supabase-js"
 
+const AI_MODEL = "llama3-70b-8192"
+
 let _openai: OpenAI | null = null
 
 function getOpenAI(): OpenAI {
   if (!_openai) {
     _openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
+      baseURL: "https://openrouter.ai/api/v1",
     })
   }
   return _openai
@@ -22,7 +25,7 @@ export async function getAIRecommendation(supabase: SupabaseClient, userId: stri
   if (!user) return null
 
   const completion = await getOpenAI().chat.completions.create({
-    model: "gpt-4o-mini",
+    model: AI_MODEL,
     messages: [
       {
         role: "system",
@@ -49,7 +52,7 @@ export async function getAIGreeting(supabase: SupabaseClient, userId: string) {
   if (!user) return "Welcome to Skyhook Coffee"
 
   const completion = await getOpenAI().chat.completions.create({
-    model: "gpt-4o-mini",
+    model: AI_MODEL,
     messages: [
       {
         role: "system",
@@ -78,7 +81,7 @@ export async function getAIAnalytics(supabase: SupabaseClient, scope: "outlet" |
     .limit(1000)
 
   const completion = await getOpenAI().chat.completions.create({
-    model: "gpt-4o-mini",
+    model: AI_MODEL,
     messages: [
       {
         role: "system",
@@ -97,7 +100,7 @@ export async function getAIAnalytics(supabase: SupabaseClient, scope: "outlet" |
 
 export async function getAIChatResponse(messages: { role: "system" | "user" | "assistant"; content: string }[]) {
   const completion = await getOpenAI().chat.completions.create({
-    model: "gpt-4o-mini",
+    model: AI_MODEL,
     messages: [
       {
         role: "system",
