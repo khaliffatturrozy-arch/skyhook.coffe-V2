@@ -174,10 +174,14 @@ export default function MenuPage() {
                   onClick={() => setSelectedItem(item)}
                   className="w-full text-left"
                 >
-                  <div className={`relative h-28 md:h-32 bg-gradient-to-br ${categoryGradients[catName] || "from-gray-600 to-gray-800"} flex items-center justify-center`}>
-                    <span className="text-5xl md:text-6xl opacity-60">{categoryIcons[catName] || "🍽️"}</span>
+                  <div className={`relative h-28 md:h-32 ${item.image_url ? '' : `bg-gradient-to-br ${categoryGradients[catName] || 'from-gray-600 to-gray-800'}`} flex items-center justify-center overflow-hidden`}>
+                    {item.image_url ? (
+                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-5xl md:text-6xl opacity-60">{categoryIcons[catName] || "🍽️"}</span>
+                    )}
                     {item.is_featured && (
-                      <span className="absolute top-2 right-2 px-2 py-0.5 bg-white/20 backdrop-blur-md text-white text-[9px] font-bold rounded-full flex items-center gap-1">
+                      <span className="absolute top-2 right-2 px-2 py-0.5 bg-black/30 backdrop-blur-md text-white text-[9px] font-bold rounded-full flex items-center gap-1">
                         <Sparkles className="w-2.5 h-2.5" /> Featured
                       </span>
                     )}
@@ -270,10 +274,14 @@ export default function MenuPage() {
                 </button>
 
                 {/* Image */}
-                <div className={`relative h-52 bg-gradient-to-br ${categoryGradients[categoryNameMap[selectedItem.category_id]] || "from-gray-600 to-gray-800"} flex items-center justify-center`}>
-                  <span className="text-8xl opacity-40">{categoryIcons[categoryNameMap[selectedItem.category_id]] || "🍽️"}</span>
+                <div className={`relative h-52 ${selectedItem.image_url ? '' : `bg-gradient-to-br ${categoryGradients[categoryNameMap[selectedItem.category_id]] || 'from-gray-600 to-gray-800'}`} flex items-center justify-center overflow-hidden`}>
+                  {selectedItem.image_url ? (
+                    <img src={selectedItem.image_url} alt={selectedItem.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-8xl opacity-40">{categoryIcons[categoryNameMap[selectedItem.category_id]] || "🍽️"}</span>
+                  )}
                   {selectedItem.is_featured && (
-                    <span className="absolute top-4 left-4 px-3 py-1 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold rounded-full flex items-center gap-1">
+                    <span className="absolute top-4 left-4 px-3 py-1 bg-black/30 backdrop-blur-md text-white text-[10px] font-bold rounded-full flex items-center gap-1">
                       <Sparkles className="w-3 h-3" /> Featured
                     </span>
                   )}
