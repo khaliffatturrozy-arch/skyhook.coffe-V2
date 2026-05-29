@@ -4,17 +4,20 @@ import { Navbar } from "@/components/layout/navbar"
 import { Footer } from "@/components/layout/footer"
 import { CartDrawer } from "@/components/cart/cart-drawer"
 
+const faviconUrl = "https://brdsg.com/img/32/brsl50twbrtoukb1wa_1/C41QqkoZG0OFCglC41P1qNGZiZVRYRfm2Ydco2AcSZw.png"
+
 export const metadata: Metadata = {
-  title: "Skyhook Coffee — Premium Rooftop Hospitality Ecosystem",
-  description: "A next-generation luxury hospitality technology company. Premium rooftop lifestyle ecosystem powered by AI.",
-  keywords: ["coffee", "rooftop", "jakarta", "premium", "skyhook", "cafe", "nightlife"],
-  openGraph: { title: "Skyhook Coffee", description: "Premium Rooftop Hospitality Ecosystem", type: "website" },
+  title: "Skyhook Coffee House & Kitchen",
+  description: "Coffee Shop Rooftop Live Music Terviral Se-Jakarta Timur",
+  keywords: ["coffee", "rooftop", "jakarta", "skyhook", "cafe", "live music"],
+  openGraph: { title: "Skyhook Coffee House & Kitchen", description: "Coffee Shop Rooftop Live Music Terviral Se-Jakarta Timur", type: "website" },
+  icons: { icon: faviconUrl, apple: faviconUrl },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full">
-      <body className="min-h-full flex flex-col bg-skyhook-black text-white antialiased">
+      <body className="min-h-full flex flex-col bg-white text-[rgba(33,33,33,0.81)] antialiased">
           <Navbar />
           {children}
           <Footer />

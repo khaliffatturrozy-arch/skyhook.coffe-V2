@@ -63,6 +63,7 @@ export const ROUTES = {
     customers: "/admin/customers",
     payments: "/admin/payments",
     waiterCalls: "/admin/waiter-calls",
+    career: "/admin/career",
   },
   kds: "/kds",
   pos: "/pos",

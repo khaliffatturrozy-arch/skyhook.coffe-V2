@@ -1,28 +1,33 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/utils/cn"
 import { Button } from "@/components/ui/button"
-import { Menu, X, User, Search } from "lucide-react"
+import { Menu, X, User } from "lucide-react"
 import { ROUTES } from "@/config"
 import { NotificationBell } from "@/components/layout/notification-bell"
 import { CartBadge } from "@/components/cart/cart-drawer"
 
 const navLinks = [
   { href: ROUTES.home, label: "Home" },
-  { href: ROUTES.menu, label: "Menu" },
-  { href: ROUTES.rooftop, label: "Rooftop" },
-  { href: ROUTES.events, label: "Events" },
-  { href: ROUTES.leaderboard, label: "Leaderboard" },
-  { href: ROUTES.community, label: "Community" },
+  { href: "/reservasi", label: "Reservation" },
+  { href: "https://wa.me/6281774934980?text=Hallo%20admin%20Skyhook%20Coffee", label: "Contact", external: true },
+  { href: "https://www.google.com/maps/place/Skyhook+Coffee+Rooftop+House+and+Kitchen/@-6.2848856,106.8793007,15z/data=!4m2!3m1!1s0x0:0xc20280c08c993aec", label: "Location", external: true },
+  { href: "/about", label: "About Us" },
+  { href: "/career", label: "Career" },
+  { href: "/investor", label: "Investor" },
+  { href: "/skyteam", label: "Our Team" },
 ]
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userName, setUserName] = useState("")
+  const [userAvatar, setUserAvatar] = useState("")
   const pathname = usePathname()
 
   useEffect(() => {
@@ -31,108 +36,174 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
+  useEffect(() => {
+    (async () => {
+      const supabase = (await import("@/lib/supabase")).createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      setIsLoggedIn(!!session)
+      if (session?.user) {
+        const { data } = await supabase.from("users").select("full_name, avatar_url").eq("id", session.user.id).single()
+        if (data) { setUserName(data.full_name); setUserAvatar(data.avatar_url || "") }
+      }
+    })()
+  }, [])
+
+  useEffect(() => {
+    if (isMobileOpen) document.body.style.overflow = "hidden"
+    else document.body.style.overflow = ""
+    return () => { document.body.style.overflow = "" }
+  }, [isMobileOpen])
+
+  const logoUrl = "https://brdsg.com/img/100/brsl50twbrtoukb1wa_1/C41QqkoZG0OFCglC41P1qNGZiZVRYRfm2Ydco2AcSZw.png"
+
   return (
-    <header
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-        isScrolled
-          ? "bg-skyhook-black/90 backdrop-blur-xl border-b border-white/5"
-          : "bg-transparent",
-      )}
-    >
-      <nav className="flex items-center justify-between section-padding h-20">
-        <Link href={ROUTES.home} className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-skyhook-amber to-skyhook-orange flex items-center justify-center">
-            <span className="text-skyhook-black font-bold text-lg">S</span>
-          </div>
-          <span className="font-heading text-xl font-bold tracking-wider hidden sm:block">
-            <span className="text-white">SKYHOOK</span>
-            <span className="text-skyhook-amber">.</span>
-          </span>
+    <header className={cn(
+      "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+      isScrolled ? "bg-white/90 backdrop-blur-lg shadow-sm" : "bg-white"
+    )}>
+      <nav className="section-padding max-w-7xl mx-auto flex items-center justify-between h-16 md:h-20">
+        <Link href={ROUTES.home} className="flex items-center gap-2 shrink-0">
+          <img src={logoUrl} alt="Skyhook Coffee" className="w-8 h-8 md:w-9 md:h-9 object-contain" />
         </Link>
 
         <div className="hidden lg:flex items-center gap-1">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "relative px-4 py-2 text-sm font-medium transition-colors duration-300 rounded-lg",
-                pathname === link.href
-                  ? "text-skyhook-amber"
-                  : "text-white/60 hover:text-white",
-              )}
-            >
-              {link.label}
-              {pathname === link.href && (
-                <motion.div
-                  layoutId="nav-indicator"
-                  className="absolute bottom-0 left-4 right-4 h-0.5 bg-gradient-to-r from-skyhook-amber to-skyhook-orange rounded-full"
-                />
-              )}
-            </Link>
-          ))}
+          {navLinks.map((link) =>
+            link.external ? (
+              <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer"
+                className="relative px-3 py-2 text-sm font-medium text-[rgba(33,33,33,0.7)] hover:text-black transition-colors group"
+              >
+                {link.label}
+                <span className="absolute bottom-0 left-2 right-2 h-[2px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+              </a>
+            ) : (
+              <Link key={link.href} href={link.href}
+                className={cn(
+                  "relative px-3 py-2 text-sm font-medium transition-colors group",
+                  pathname === link.href
+                    ? "text-black"
+                    : "text-[rgba(33,33,33,0.7)] hover:text-black"
+                )}
+              >
+                {link.label}
+                <span className={cn(
+                  "absolute bottom-0 left-2 right-2 h-[2px] bg-black transition-transform origin-left",
+                  pathname === link.href ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                )} />
+              </Link>
+            )
+          )}
         </div>
 
-        <div className="flex items-center gap-3">
-          <button className="p-2 text-white/60 hover:text-white transition-colors hidden sm:block">
-            <Search className="w-5 h-5" />
-          </button>
-          <CartBadge />
-          <NotificationBell />
-          <Link href={ROUTES.auth}>
-            <Button variant="primary" size="sm" className="hidden sm:inline-flex">
-              <User className="w-4 h-4 mr-2" />
-              Sign In
+        <div className="flex items-center gap-1">
+          {isLoggedIn && (
+            <>
+              <div className="hidden sm:block">
+                <CartBadge />
+              </div>
+              <NotificationBell />
+            </>
+          )}
+          <Link href={isLoggedIn ? "/profile" : "/auth"}>
+            <Button variant="primary" size="sm" className="hidden sm:inline-flex bg-[#313131] hover:bg-black text-white border-none rounded-full px-4 gap-2">
+              {isLoggedIn && userAvatar ? (
+                <img src={userAvatar} alt="" className="w-5 h-5 rounded-full object-cover" />
+              ) : (
+                <User className="w-3.5 h-3.5" />
+              )}
+              {isLoggedIn && userName ? userName.split(" ")[0] : "Sign In"}
             </Button>
           </Link>
           <button
             onClick={() => setIsMobileOpen(!isMobileOpen)}
-            className="p-2 text-white/60 hover:text-white transition-colors lg:hidden"
+            className="p-2.5 text-[rgba(33,33,33,0.6)] hover:text-black transition-colors lg:hidden"
           >
-            {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </nav>
 
       <AnimatePresence>
         {isMobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-skyhook-charcoal/95 backdrop-blur-xl border-t border-white/5 overflow-hidden"
-          >
-            <div className="section-padding py-6 space-y-2">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setIsMobileOpen(false)}
-                  className={cn(
-                    "block px-4 py-3 rounded-xl text-sm font-medium transition-colors",
-                    pathname === link.href
-                      ? "bg-skyhook-amber/10 text-skyhook-amber"
-                      : "text-white/60 hover:text-white hover:bg-white/5",
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
-              <Link href={ROUTES.profile} onClick={() => setIsMobileOpen(false)} className="block px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors">
-                <User className="w-4 h-4 inline mr-2" />Profile
-              </Link>
-              <Link href={ROUTES.achievements} onClick={() => setIsMobileOpen(false)} className="block px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors">
-                Achievements
-              </Link>
-              <Link href={ROUTES.auth} onClick={() => setIsMobileOpen(false)}>
-                <Button variant="primary" className="w-full mt-4">
-                  <User className="w-4 h-4 mr-2" />
-                  Sign In
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/20 z-40 lg:hidden"
+              onClick={() => setIsMobileOpen(false)}
+            />
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="fixed top-0 right-0 bottom-0 w-72 bg-white shadow-xl z-50 lg:hidden"
+            >
+              <div className="flex items-center justify-between px-5 h-16 border-b border-gray-100">
+                <img src={logoUrl} alt="Skyhook Coffee" className="w-8 h-8 object-contain" />
+                <button onClick={() => setIsMobileOpen(false)} className="p-2 text-gray-400 hover:text-black">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="px-3 py-4 space-y-1 overflow-y-auto" style={{ height: "calc(100% - 64px)" }}>
+                {navLinks.map((link, i) => (
+                  <motion.div
+                    key={link.label}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                  >
+                    {link.external ? (
+                      <a href={link.href} target="_blank" rel="noopener noreferrer"
+                        onClick={() => setIsMobileOpen(false)}
+                        className="block px-4 py-3 rounded-xl text-sm font-medium text-[rgba(33,33,33,0.81)] hover:text-black hover:bg-gray-50 transition-colors"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link href={link.href}
+                        onClick={() => setIsMobileOpen(false)}
+                        className={cn(
+                          "block px-4 py-3 rounded-xl text-sm font-medium transition-colors",
+                          pathname === link.href
+                            ? "text-black bg-gray-100 font-semibold"
+                            : "text-[rgba(33,33,33,0.81)] hover:text-black hover:bg-gray-50"
+                        )}
+                      >
+                        {link.label}
+                      </Link>
+                    )}
+                  </motion.div>
+                ))}
+                <div className="pt-4 mt-4 border-t border-gray-100 space-y-2">
+                  {isLoggedIn ? (
+                    <>
+                      <Link href={ROUTES.profile} onClick={() => setIsMobileOpen(false)}
+                        className="block px-4 py-3 rounded-xl text-sm font-medium text-[rgba(33,33,33,0.81)] hover:text-black hover:bg-gray-50 transition-colors"
+                      >
+                        Profile
+                      </Link>
+                      <Link href={ROUTES.achievements} onClick={() => setIsMobileOpen(false)}
+                        className="block px-4 py-3 rounded-xl text-sm font-medium text-[rgba(33,33,33,0.81)] hover:text-black hover:bg-gray-50 transition-colors"
+                      >
+                        Achievements
+                      </Link>
+                    </>
+                  ) : null}
+                  <Link href={isLoggedIn ? "/profile" : ROUTES.auth} onClick={() => setIsMobileOpen(false)} className="block pt-2">
+                    <Button variant="primary" className="w-full bg-[#313131] hover:bg-black text-white border-none rounded-full gap-2">
+                      {isLoggedIn && userAvatar ? (
+                        <img src={userAvatar} alt="" className="w-5 h-5 rounded-full object-cover" />
+                      ) : (
+                        <User className="w-4 h-4" />
+                      )}
+                      {isLoggedIn && userName ? userName : "Sign In"}
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </header>

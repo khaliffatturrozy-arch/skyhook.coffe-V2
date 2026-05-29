@@ -14,26 +14,26 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          "relative inline-flex items-center justify-center font-medium transition-all duration-300 rounded-xl overflow-hidden group cursor-pointer",
+          "relative inline-flex items-center justify-center font-medium transition-all duration-200 cursor-pointer",
           {
-            "bg-gradient-to-r from-skyhook-amber to-skyhook-orange text-white hover:opacity-90 hover:shadow-lg hover:shadow-skyhook-amber/25 active:scale-[0.98]":
+            "bg-[#313131] text-white hover:bg-black active:scale-[0.98]":
               variant === "primary",
-            "glass glass-hover text-white/80 hover:text-white":
+            "bg-gray-100 text-[rgba(33,33,33,0.81)] hover:bg-gray-200":
               variant === "secondary",
-            "bg-transparent text-white/60 hover:text-white hover:bg-white/5":
+            "bg-transparent text-[rgba(33,33,33,0.6)] hover:text-black":
               variant === "ghost",
-            "border border-white/20 text-white/80 hover:text-white hover:border-skyhook-amber/50 hover:bg-white/5":
+            "border border-gray-300 text-[rgba(33,33,33,0.81)] hover:text-black hover:border-gray-400":
               variant === "outline",
-            "bg-gradient-to-r from-skyhook-gold to-skyhook-amber text-skyhook-black font-semibold hover:shadow-lg hover:shadow-skyhook-gold/25 active:scale-[0.98]":
+            "bg-[#1B5E20] text-white hover:bg-[#145518] active:scale-[0.98]":
               variant === "gold",
           },
           {
-            "px-4 py-2 text-sm": size === "sm",
-            "px-6 py-3 text-base": size === "md",
-            "px-8 py-4 text-lg": size === "lg",
-            "px-10 py-5 text-xl": size === "xl",
+            "px-4 py-2 text-sm rounded-full": size === "sm",
+            "px-6 py-3 text-base rounded-full": size === "md",
+            "px-8 py-4 text-lg rounded-full": size === "lg",
+            "px-10 py-5 text-xl rounded-full": size === "xl",
           },
-          "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100",
+          "disabled:opacity-50 disabled:cursor-not-allowed",
           className,
         )}
         {...props}

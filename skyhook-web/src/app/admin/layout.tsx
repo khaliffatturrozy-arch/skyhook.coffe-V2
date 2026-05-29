@@ -7,7 +7,7 @@ import { ROUTES } from "@/config"
 import {
   LayoutDashboard, ShoppingBag, Utensils, Calendar,
   Package, BarChart3, Store, Users, Settings, Wallet,
-  Bell, ChevronLeft,
+  Bell, ChevronLeft, Briefcase,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -24,17 +24,18 @@ const sidebarLinks = [
   { href: ROUTES.admin.payments, label: "Payments", icon: Wallet },
   { href: ROUTES.admin.waiterCalls, label: "Waiter Calls", icon: Bell },
   { href: ROUTES.admin.cms, label: "CMS", icon: Settings },
+  { href: ROUTES.admin.career, label: "Career", icon: Briefcase },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
   return (
-    <div className="flex min-h-screen bg-skyhook-black pt-20">
-      <aside className="w-64 border-r border-white/5 p-4 hidden lg:block">
+    <div className="flex min-h-screen bg-gray-50 pt-16">
+      <aside className="w-64 border-r border-gray-200 bg-white p-4 hidden lg:block">
         <Link href={ROUTES.admin.dashboard}>
-          <h2 className="font-heading text-lg font-bold mb-6 px-3">
-            Skyhook <span className="text-skyhook-amber">Admin</span>
+          <h2 className="text-lg font-bold mb-6 px-3 text-[#212121]">
+            Skyhook <span className="text-[rgba(33,33,33,0.5)]">Admin</span>
           </h2>
         </Link>
         <nav className="space-y-1">
@@ -48,8 +49,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
                   isActive
-                    ? "bg-skyhook-amber/10 text-skyhook-amber"
-                    : "text-white/40 hover:text-white hover:bg-white/5",
+                    ? "bg-gray-100 text-[#212121] font-semibold"
+                    : "text-[rgba(33,33,33,0.5)] hover:text-[#212121] hover:bg-gray-50",
                 )}
               >
                 <Icon className="w-4 h-4" />
