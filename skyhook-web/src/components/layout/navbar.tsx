@@ -57,61 +57,63 @@ export function Navbar() {
   const logoUrl = "https://brdsg.com/img/100/brsl50twbrtoukb1wa_1/C41QqkoZG0OFCglC41P1qNGZiZVRYRfm2Ydco2AcSZw.png"
 
   return (
-    <header className={cn(
-      "fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-sm transition-all duration-300",
-      isScrolled && "shadow-md"
-    )}>
-      <nav className="section-padding max-w-7xl mx-auto flex items-center justify-between h-16 md:h-20">
-        <Link href={ROUTES.home} className="flex items-center gap-2 shrink-0">
-          <img src={logoUrl} alt="Skyhook Coffee" className="w-8 h-8 md:w-9 md:h-9 object-contain" />
-        </Link>
-
-        <div className="hidden lg:flex items-center gap-1">
-          {navLinks.map((link) => (
-            <Link key={link.href} href={link.href}
-              className={cn(
-                "relative px-3 py-2 text-sm font-medium transition-colors group",
-                pathname === link.href
-                  ? "text-black"
-                  : "text-[rgba(33,33,33,0.7)] hover:text-black"
-              )}
-            >
-              {link.label}
-              <span className={cn(
-                "absolute bottom-0 left-2 right-2 h-[2px] bg-black transition-transform origin-left",
-                pathname === link.href ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-              )} />
-            </Link>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-1">
-          {isLoggedIn && (
-            <>
-              <div className="hidden sm:block">
-                <CartBadge />
-              </div>
-              <NotificationBell />
-            </>
-          )}
-          <Link href={isLoggedIn ? "/profile" : "/auth"}>
-            <Button variant="primary" size="sm" className="hidden sm:inline-flex bg-[#313131] hover:bg-black text-white border-none rounded-full px-4 gap-2">
-              {isLoggedIn && userAvatar ? (
-                <img src={userAvatar} alt="" className="w-5 h-5 rounded-full object-cover" />
-              ) : (
-                <User className="w-3.5 h-3.5" />
-              )}
-              {isLoggedIn && userName ? userName.split(" ")[0] : "Sign In"}
-            </Button>
+    <>
+      <nav className={cn(
+        "fixed top-0 left-0 right-0 z-50 h-16 md:h-20 bg-white/95 backdrop-blur-md shadow-sm transition-shadow navbar-safe",
+        isScrolled && "shadow-md"
+      )}>
+        <div className="h-full max-w-7xl mx-auto flex items-center justify-between px-4 md:px-8 lg:px-16">
+          <Link href={ROUTES.home} className="flex items-center shrink-0">
+            <img src={logoUrl} alt="Skyhook Coffee" className="w-7 h-7 md:w-9 md:h-9 object-contain" />
           </Link>
-          <div className="flex items-center gap-0 sm:hidden">
-            {isLoggedIn && <CartBadge />}
-            <button
-              onClick={() => setIsMobileOpen(!isMobileOpen)}
-              className="p-2.5 text-[rgba(33,33,33,0.6)] hover:text-black transition-colors lg:hidden"
-            >
-              {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+
+          <div className="hidden lg:flex items-center gap-1">
+            {navLinks.map((link) => (
+              <Link key={link.href} href={link.href}
+                className={cn(
+                  "relative px-3 py-2 text-sm font-medium transition-colors group",
+                  pathname === link.href
+                    ? "text-black"
+                    : "text-[rgba(33,33,33,0.7)] hover:text-black"
+                )}
+              >
+                {link.label}
+                <span className={cn(
+                  "absolute bottom-0 left-2 right-2 h-[2px] bg-black transition-transform origin-left",
+                  pathname === link.href ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                )} />
+              </Link>
+            ))}
+          </div>
+
+          <div className="flex items-center">
+            {isLoggedIn && (
+              <div className="flex items-center mr-2">
+                <div className="hidden sm:block mr-1">
+                  <CartBadge />
+                </div>
+                <NotificationBell />
+              </div>
+            )}
+            <Link href={isLoggedIn ? "/profile" : "/auth"}>
+              <Button variant="primary" size="sm" className="hidden sm:inline-flex bg-[#313131] hover:bg-black text-white border-none rounded-full px-4 gap-2">
+                {isLoggedIn && userAvatar ? (
+                  <img src={userAvatar} alt="" className="w-5 h-5 rounded-full object-cover" />
+                ) : (
+                  <User className="w-3.5 h-3.5" />
+                )}
+                {isLoggedIn && userName ? userName.split(" ")[0] : "Sign In"}
+              </Button>
+            </Link>
+            <div className="flex items-center lg:hidden ml-1">
+              {isLoggedIn && <CartBadge />}
+              <button
+                onClick={() => setIsMobileOpen(!isMobileOpen)}
+                className="p-2 text-[rgba(33,33,33,0.6)] hover:text-black transition-colors"
+              >
+                {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -134,10 +136,10 @@ export function Navbar() {
               className="fixed top-0 right-0 bottom-0 w-72 bg-white shadow-xl z-50 lg:hidden"
             >
               <div className="flex items-center justify-between px-5 h-16 border-b border-gray-100">
-                <img src={logoUrl} alt="Skyhook Coffee" className="w-8 h-8 object-contain" />
-                <div className="flex items-center gap-1">
+                <img src={logoUrl} alt="Skyhook Coffee" className="w-7 h-7 object-contain" />
+                <div className="flex items-center">
                   {isLoggedIn && <CartBadge />}
-                  <button onClick={() => setIsMobileOpen(false)} className="p-2 text-gray-400 hover:text-black">
+                  <button onClick={() => setIsMobileOpen(false)} className="p-2 ml-1 text-gray-400 hover:text-black">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -203,6 +205,6 @@ export function Navbar() {
           </>
         )}
       </AnimatePresence>
-    </header>
+    </>
   )
 }

@@ -37,6 +37,11 @@ body {
 @media (min-width: 768px) { .section-padding { padding-left: 2rem; padding-right: 2rem; } }
 @media (min-width: 1024px) { .section-padding { padding-left: 4rem; padding-right: 4rem; } }
 
+.navbar-safe {
+  padding-top: 0px;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
 .btn-skyhook {
   display: inline-flex;
   align-items: center;
