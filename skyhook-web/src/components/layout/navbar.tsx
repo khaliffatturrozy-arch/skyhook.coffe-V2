@@ -1,15 +1,17 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, lazy, Suspense } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import Image from "next/image"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/utils/cn"
 import { Button } from "@/components/ui/button"
-import { Menu, X, User } from "lucide-react"
+import { Menu, X, User, LogOut, ChevronDown } from "lucide-react"
 import { ROUTES } from "@/config"
-import { NotificationBell } from "@/components/layout/notification-bell"
 import { CartBadge } from "@/components/cart/cart-drawer"
+
+const NotificationBell = lazy(() => import("@/components/layout/notification-bell").then((m) => ({ default: m.NotificationBell })))
 
 const navLinks = [
   { href: ROUTES.home, label: "Home" },
@@ -28,7 +30,9 @@ export function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userName, setUserName] = useState("")
   const [userAvatar, setUserAvatar] = useState("")
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20)
@@ -42,17 +46,41 @@ export function Navbar() {
       const { data: { session } } = await supabase.auth.getSession()
       setIsLoggedIn(!!session)
       if (session?.user) {
-        const { data } = await supabase.from("users").select("full_name, avatar_url").eq("id", session.user.id).single()
+        const { data } = await supabase.from("profiles").select("full_name, avatar_url").eq("id", session.user.id).single()
         if (data) { setUserName(data.full_name); setUserAvatar(data.avatar_url || "") }
+        else {
+          const { data: userData } = await supabase.from("users").select("full_name, avatar_url").eq("id", session.user.id).single()
+          if (userData) { setUserName(userData.full_name); setUserAvatar(userData.avatar_url || "") }
+        }
       }
     })()
   }, [])
+
+  async function handleSignOut() {
+    const supabase = (await import("@/lib/supabase")).createClient()
+    await supabase.auth.signOut()
+    setIsLoggedIn(false)
+    setUserName("")
+    setUserAvatar("")
+    setUserMenuOpen(false)
+    router.push("/")
+  }
 
   useEffect(() => {
     if (isMobileOpen) document.body.style.overflow = "hidden"
     else document.body.style.overflow = ""
     return () => { document.body.style.overflow = "" }
   }, [isMobileOpen])
+
+  useEffect(() => {
+    if (!userMenuOpen) return
+    function handleClick(e: MouseEvent) {
+      const target = e.target as HTMLElement
+      if (!target.closest(".user-menu-container")) setUserMenuOpen(false)
+    }
+    document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [userMenuOpen])
 
   const logoUrl = "https://brdsg.com/img/100/brsl50twbrtoukb1wa_1/C41QqkoZG0OFCglC41P1qNGZiZVRYRfm2Ydco2AcSZw.png"
 
@@ -64,7 +92,9 @@ export function Navbar() {
       )}>
         <div className="h-full max-w-7xl mx-auto flex items-center justify-between px-4 md:px-8 lg:px-16">
           <Link href={ROUTES.home} className="flex items-center shrink-0">
-            <img src={logoUrl} alt="Skyhook Coffee" className="w-7 h-7 md:w-9 md:h-9 object-contain" />
+            <div className="relative w-7 h-7 md:w-9 md:h-9">
+              <Image src={logoUrl} alt="Skyhook Coffee" fill sizes="36px" className="object-contain" priority />
+            </div>
           </Link>
 
           <div className="hidden lg:flex items-center gap-1">
@@ -92,19 +122,59 @@ export function Navbar() {
                 <div className="hidden sm:block mr-1">
                   <CartBadge />
                 </div>
-                <NotificationBell />
+                <Suspense><NotificationBell /></Suspense>
               </div>
             )}
-            <Link href={isLoggedIn ? "/profile" : "/auth"}>
-              <Button variant="primary" size="sm" className="hidden sm:inline-flex bg-[#313131] hover:bg-black text-white border-none rounded-full px-4 gap-2">
-                {isLoggedIn && userAvatar ? (
-                  <img src={userAvatar} alt="" className="w-5 h-5 rounded-full object-cover" />
-                ) : (
+            {isLoggedIn ? (
+              <div className="relative hidden sm:block user-menu-container">
+                <button onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#313131] hover:bg-black text-white rounded-full text-sm font-medium transition-all">
+                  {userAvatar ? (
+                    <div className="relative w-5 h-5 rounded-full overflow-hidden shrink-0">
+                      <Image src={userAvatar} alt="" fill sizes="20px" className="object-cover" />
+                    </div>
+                  ) : (
+                    <User className="w-3.5 h-3.5" />
+                  )}
+                  <span className="max-w-[80px] truncate">{userName ? userName.split(" ")[0] : "User"}</span>
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+                <AnimatePresence>
+                  {userMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      className="absolute right-0 mt-1.5 w-44 bg-white border border-gray-100 rounded-2xl shadow-lg overflow-hidden z-50"
+                    >
+                      <Link href="/profile" onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#212121] hover:bg-gray-50 transition-colors">
+                        <User className="w-4 h-4 text-gray-400" />
+                        Profile
+                      </Link>
+                      <Link href="/dashboard" onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#212121] hover:bg-gray-50 transition-colors">
+                        <svg className="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
+                        Dashboard
+                      </Link>
+                      <hr className="border-gray-100" />
+                      <button onClick={handleSignOut}
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors">
+                        <LogOut className="w-4 h-4" />
+                        Sign Out
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <Link href="/auth">
+                <Button variant="primary" size="sm" className="hidden sm:inline-flex bg-[#313131] hover:bg-black text-white border-none rounded-full px-4 gap-2">
                   <User className="w-3.5 h-3.5" />
-                )}
-                {isLoggedIn && userName ? userName.split(" ")[0] : "Sign In"}
-              </Button>
-            </Link>
+                  Sign In
+                </Button>
+              </Link>
+            )}
             <div className="flex items-center lg:hidden ml-1">
               {isLoggedIn && <CartBadge />}
               <button
@@ -136,7 +206,9 @@ export function Navbar() {
               className="fixed top-0 right-0 bottom-0 w-72 bg-white shadow-xl z-50 lg:hidden"
             >
               <div className="flex items-center justify-between px-5 h-16 border-b border-gray-100">
-                <img src={logoUrl} alt="Skyhook Coffee" className="w-7 h-7 object-contain" />
+                <div className="relative w-7 h-7">
+                  <Image src={logoUrl} alt="Skyhook Coffee" fill sizes="28px" className="object-contain" />
+                </div>
                 <div className="flex items-center">
                   {isLoggedIn && <CartBadge />}
                   <button onClick={() => setIsMobileOpen(false)} className="p-2 ml-1 text-gray-400 hover:text-black">
@@ -187,18 +259,26 @@ export function Navbar() {
                       >
                         Achievements
                       </Link>
+                      <Link href="/dashboard" onClick={() => setIsMobileOpen(false)}
+                        className="block px-4 py-3 rounded-xl text-sm font-medium text-[rgba(33,33,33,0.81)] hover:text-black hover:bg-gray-50 transition-colors"
+                      >
+                        Dashboard
+                      </Link>
+                      <button onClick={() => { handleSignOut(); setIsMobileOpen(false) }}
+                        className="w-full flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sign Out
+                      </button>
                     </>
-                  ) : null}
-                  <Link href={isLoggedIn ? "/profile" : ROUTES.auth} onClick={() => setIsMobileOpen(false)} className="block pt-2">
-                    <Button variant="primary" className="w-full bg-[#313131] hover:bg-black text-white border-none rounded-full gap-2">
-                      {isLoggedIn && userAvatar ? (
-                        <img src={userAvatar} alt="" className="w-5 h-5 rounded-full object-cover" />
-                      ) : (
+                  ) : (
+                    <Link href={ROUTES.auth} onClick={() => setIsMobileOpen(false)} className="block pt-2">
+                      <Button variant="primary" className="w-full bg-[#313131] hover:bg-black text-white border-none rounded-full gap-2">
                         <User className="w-4 h-4" />
-                      )}
-                      {isLoggedIn && userName ? userName : "Sign In"}
-                    </Button>
-                  </Link>
+                        Sign In
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               </div>
             </motion.div>

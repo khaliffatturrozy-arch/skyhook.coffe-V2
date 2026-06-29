@@ -35,10 +35,11 @@ export function NotificationBell() {
       setLoading(false)
     })()
 
-    const sub = supabase.channel("notifications").on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, () => {
-      fetch("/api/notifications").then(r => r.json()).then(d => {
-        if (d.notifications) { setNotifications(d.notifications); setUnread(d.unread) }
-      })
+    const sub = supabase.channel("notifications").on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, (payload) => {
+      if (payload.eventType === "INSERT") {
+        setNotifications((prev) => [payload.new as Notification, ...prev].slice(0, 20))
+        setUnread((prev) => prev + 1)
+      }
     }).subscribe()
 
     const handleClick = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }

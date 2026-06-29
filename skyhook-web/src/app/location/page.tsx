@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import Image from "next/image"
 import { MapPin, Clock, Coffee, Navigation, ArrowUpRight, Sparkles } from "lucide-react"
 
 const logoUrl = "https://brdsg.com/img/200/brsl50twbrtoukb1wa_1/C4bLWTcRuGIL0MnC4bOF7EzFvjAcsTEefj119S6Fhg.png"
@@ -26,7 +27,7 @@ export default function LocationPage() {
         <Blob className="absolute -bottom-40 -left-40 w-[30rem] h-[30rem] text-sky-50/50 pointer-events-none" />
         <div className="relative z-10 text-center px-4 max-w-2xl mx-auto">
           <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8 }}>
-            <img src={logoUrl} alt="" className="w-14 h-14 mx-auto mb-5 opacity-80" />
+            <Image src={logoUrl} alt="" width={56} height={56} className="mx-auto mb-5 opacity-80" />
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-100 mb-6">
               <MapPin className="w-3.5 h-3.5 text-emerald-600" />
               <span className="text-xs font-semibold text-emerald-700 tracking-wider uppercase">Our Location</span>

@@ -169,7 +169,7 @@ export interface Staff {
   id: string
   user_id: string
   outlet_id: string
-  role: "manager" | "cashier" | "server" | "kitchen" | "bartender" | "host"
+  role: "admin" | "manager" | "cashier" | "server" | "kitchen" | "chef" | "bartender" | "host"
   is_active: boolean
   shift?: string
 }

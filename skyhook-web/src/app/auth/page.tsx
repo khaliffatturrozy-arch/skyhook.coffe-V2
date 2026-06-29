@@ -1,24 +1,42 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { motion } from "framer-motion"
+import Image from "next/image"
 import { Mail, Lock, User, Eye, EyeOff, Loader2, Sparkles, ArrowRight } from "lucide-react"
 import { createClient } from "@/lib/supabase"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 const logoUrl = "https://brdsg.com/img/100/brsl50twbrtoukb1wa_1/C41QqkoZG0OFCglC41P1qNGZiZVRYRfm2Ydco2AcSZw.png"
 
-export default function AuthPage() {
+const ROLE_ROUTES: Record<string, string> = {
+  admin: "/admin/dashboard",
+  manager: "/admin/dashboard",
+  kitchen: "/kds",
+  chef: "/kds",
+  bartender: "/kds",
+  server: "/staff",
+  host: "/staff",
+  cashier: "/pos",
+}
+
+function AuthForm() {
   const [tab, setTab] = useState<"login" | "signup">("login")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
 
   const [loginForm, setLoginForm] = useState({ email: "", password: "" })
   const [signupForm, setSignupForm] = useState({ full_name: "", email: "", password: "" })
+
+  async function getRoleRedirect(userId: string) {
+    const { data: staff } = await supabase.from("staff").select("role").eq("user_id", userId).maybeSingle()
+    return staff?.role ? ROLE_ROUTES[staff.role] : "/dashboard"
+  }
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -33,7 +51,8 @@ export default function AuthPage() {
         full_name: loginData.user.user_metadata?.full_name || loginData.user.email?.split("@")[0] || "User",
       }, { onConflict: "id", ignoreDuplicates: false })
     }
-    router.push("/dashboard")
+    const redirect = searchParams.get("redirect") || await getRoleRedirect(loginData.user!.id)
+    router.push(redirect)
   }
 
   async function handleSignup(e: React.FormEvent) {
@@ -62,8 +81,14 @@ export default function AuthPage() {
 
   async function handleGoogle() {
     setLoading(true); setError("")
-    await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/auth/callback` } })
-    setLoading(false)
+    const redirect = searchParams.get("redirect") || ""
+    const baseUrl = typeof window !== "undefined" ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || "https://skyhook-web-gamma.vercel.app"
+    const redirectTo = `${baseUrl}/auth/callback${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ""}`
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo },
+    })
+    if (oauthError) { setError(oauthError.message); setLoading(false) }
   }
 
   if (success) {
@@ -84,7 +109,7 @@ export default function AuthPage() {
     <main className="min-h-screen bg-white pt-20 md:pt-24">
       <div className="max-w-4xl mx-auto section-padding py-6 md:py-12">
         <div className="text-center mb-8">
-          <img src={logoUrl} alt="Skyhook Coffee" className="w-12 h-12 mx-auto mb-3" />
+          <Image src={logoUrl} alt="Skyhook Coffee" width={48} height={48} className="mx-auto mb-3" />
           <h1 className="text-2xl md:text-3xl font-bold text-[#212121]">Welcome to Skyhook</h1>
           <p className="text-[rgba(33,33,33,0.5)] text-sm mt-1">Sign in to your account or create a new one</p>
         </div>
@@ -144,7 +169,7 @@ export default function AuthPage() {
                     <label className="text-[rgba(33,33,33,0.5)] text-xs font-medium block mb-1.5">Password</label>
                     <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3.5 py-2.5 bg-gray-50/50 focus-within:border-gray-400 transition-colors">
                       <Lock className="w-4 h-4 text-[rgba(33,33,33,0.3)] shrink-0" />
-                      <input type={showPassword ? "text" : "password"} value={loginForm.password} onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                      <input type={showPassword ? "text" : "password"} autoComplete="current-password" value={loginForm.password} onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
                         placeholder="••••••••" className="bg-transparent text-sm text-[#212121] outline-none flex-1 placeholder:text-[rgba(33,33,33,0.3)]" />
                       <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-[rgba(33,33,33,0.3)] hover:text-[#212121]">
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -182,7 +207,7 @@ export default function AuthPage() {
                     <label className="text-[rgba(33,33,33,0.5)] text-xs font-medium block mb-1.5">Password</label>
                     <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3.5 py-2.5 bg-gray-50/50 focus-within:border-gray-400 transition-colors">
                       <Lock className="w-4 h-4 text-[rgba(33,33,33,0.3)] shrink-0" />
-                      <input type={showPassword ? "text" : "password"} value={signupForm.password} onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
+                      <input type={showPassword ? "text" : "password"} autoComplete="new-password" value={signupForm.password} onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
                         placeholder="Min. 6 characters" className="bg-transparent text-sm text-[#212121] outline-none flex-1 placeholder:text-[rgba(33,33,33,0.3)]" />
                       <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-[rgba(33,33,33,0.3)] hover:text-[#212121]">
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -203,5 +228,13 @@ export default function AuthPage() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-white pt-20 flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-[#313131]" /></main>}>
+      <AuthForm />
+    </Suspense>
   )
 }

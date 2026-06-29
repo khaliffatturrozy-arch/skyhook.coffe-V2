@@ -4,11 +4,24 @@ import { useState, useEffect } from "react"
 import { GlassCard } from "@/components/ui/glass-card"
 import { Button } from "@/components/ui/button"
 import { Clock, Bell, ClipboardList, QrCode, LogOut, User, Loader2 } from "lucide-react"
+import { createClient } from "@/lib/supabase"
 
 export default function StaffPage() {
+  const [checking, setChecking] = useState(true)
   const [data, setData] = useState<any>({ staff: [], tasks: [], shifts: [], currentUser: null })
   const [loading, setLoading] = useState(true)
   const [clocking, setClocking] = useState(false)
+
+  useEffect(() => {
+    (async () => {
+      const client = createClient()
+      const { data: { session } } = await client.auth.getSession()
+      if (!session?.user?.id) { window.location.href = "/auth"; return }
+      const { data: staff } = await client.from("staff").select("role").eq("user_id", session.user.id).maybeSingle()
+      if (!staff || !["server", "host", "admin", "manager"].includes(staff.role)) { window.location.href = "/dashboard"; return }
+      setChecking(false)
+    })()
+  }, [])
 
   async function load() {
     setLoading(true)
@@ -41,6 +54,8 @@ export default function StaffPage() {
 
   const activeShift = data.shifts?.find((s: any) => s.status === "active" && !s.clock_out)
   const currentStaff = data.currentUser ? data.staff?.find((s: any) => s.user_id === data.currentUser.id) : null
+
+  if (checking) return <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-skyhook-amber" /></div>
 
   return (
     <div className="pt-24 min-h-screen">

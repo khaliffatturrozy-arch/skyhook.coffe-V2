@@ -15,9 +15,11 @@ export async function POST(req: Request) {
       .from("job_applications")
       .insert({ full_name, email, phone, position, message })
       .select()
-      .single()
+      .maybeSingle()
 
-    if (error) throw error
+    if (error || !data) {
+      return NextResponse.json({ error: "Job application not found" }, { status: 404 })
+    }
 
     return NextResponse.json({ application: data })
   } catch (e) {

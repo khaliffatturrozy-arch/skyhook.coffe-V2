@@ -520,6 +520,30 @@ CREATE TRIGGER trigger_update_order_total
   FOR EACH ROW
   EXECUTE FUNCTION update_order_total();
 
+-- Check if any admin/manager exists (bypasses RLS via SECURITY DEFINER)
+CREATE OR REPLACE FUNCTION public.admin_exists()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path TO ''
+AS $$
+  SELECT EXISTS (SELECT 1 FROM public.staff WHERE role IN ('admin', 'manager'));
+$$;
+
+-- Check a specific user's staff role (bypasses RLS via SECURITY DEFINER)
+CREATE OR REPLACE FUNCTION public.check_staff_role(p_user_id uuid)
+RETURNS TEXT
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path TO ''
+AS $$
+  SELECT role FROM public.staff
+  WHERE user_id = p_user_id
+    AND role IN ('admin', 'manager')
+    AND is_active = true
+  LIMIT 1;
+$$;
+
 -- Update timestamp
 CREATE OR REPLACE FUNCTION update_timestamp()
 RETURNS TRIGGER AS $$

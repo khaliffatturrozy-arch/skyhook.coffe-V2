@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@theme {
+  --color-skyhook-black: #0a0a0a;
+  --color-skyhook-amber: #f59e0b;
+  --color-skyhook-orange: #ea580c;
+}
+
+body { font-family: system-ui, -apple-system, sans-serif; }

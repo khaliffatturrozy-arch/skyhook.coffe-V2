@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, lazy, Suspense } from "react"
 import { motion } from "framer-motion"
 import { GlassCard } from "@/components/ui/glass-card"
 import { Button } from "@/components/ui/button"
 import { Calendar, Clock, MapPin, Music, Ticket, Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
-import { TicketModal } from "@/components/events/ticket-modal"
+
+const TicketModal = lazy(() => import("@/components/events/ticket-modal").then((m) => ({ default: m.TicketModal })))
 
 interface SkyEvent {
   id: string
@@ -138,7 +139,7 @@ export default function EventsPage() {
         </motion.div>
       </div>
 
-      {ticketEvent && <TicketModal event={ticketEvent} onClose={() => setTicketEvent(null)} />}
+      {ticketEvent && <Suspense><TicketModal event={ticketEvent} onClose={() => setTicketEvent(null)} /></Suspense>}
     </div>
   )
 }

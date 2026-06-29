@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
+import Image from "next/image"
 import { Navigation, Trophy, Crown, Medal, Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 
@@ -27,13 +28,35 @@ const rankEmojis: Record<number, string> = { 1: "🔥", 2: "👑", 3: "⭐", 4: 
 export default function Home() {
   const [leaderboard, setLeaderboard] = useState<LBEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [userRank, setUserRank] = useState<LBEntry | null>(null)
+  const [session, setSession] = useState<any>(null)
 
   useEffect(() => {
-    (async () => {
-      const { data } = await createClient().from("leaderboard").select("*").order("rank").limit(5)
+    const supabase = createClient()
+
+    const fetchData = async () => {
+      const { data: sessionData } = await supabase.auth.getSession()
+      setSession(sessionData?.session ?? null)
+
+      const { data } = await supabase.from("leaderboard").select("*").order("rank").limit(5)
       if (data) setLeaderboard(data as LBEntry[])
+
+      if (sessionData?.session?.user?.id) {
+        const { data: rankData } = await supabase.from("leaderboard").select("*").eq("user_id", sessionData.session.user.id).maybeSingle()
+        if (rankData) setUserRank(rankData as LBEntry)
+      }
+
       setLoading(false)
-    })()
+    }
+    fetchData()
+
+    const channel = supabase.channel("leaderboard-realtime").on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "leaderboard" },
+      () => { fetchData() }
+    ).subscribe()
+
+    return () => { supabase.removeChannel(channel) }
   }, [])
 
   return (
@@ -70,7 +93,7 @@ export default function Home() {
                           initial={{ opacity: 0, y: 12 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: member.rank * 0.1, duration: 0.4 }}
-                          className={`flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors ${isTop3 ? `bg-gradient-to-r ${glowColors[member.rank - 1]} relative` : ""}`}
+                          className={`flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors ${isTop3 ? `bg-gradient-to-r ${glowColors[member.rank - 1]} relative` : ""} will-change-transform`}
                         >
                           {isTop3 && (
                             <motion.div
@@ -122,10 +145,17 @@ export default function Home() {
                     <Crown className="w-4 h-4 text-[#313131]" />
                     <h3 className="font-semibold text-sm text-[#212121]">Your Rank</h3>
                   </div>
-                  <div className="text-center py-4">
-                    <div className="text-4xl font-bold text-gray-300 mb-1">--</div>
-                    <p className="text-xs text-gray-400">Sign in to see your rank</p>
-                  </div>
+                  {session && userRank ? (
+                    <div className="text-center py-4">
+                      <div className="text-4xl font-bold text-[#212121] mb-1">#{userRank.rank}</div>
+                      <p className="text-xs text-gray-400">{userRank.total_points?.toLocaleString() || 0} points</p>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">
+                      <div className="text-4xl font-bold text-gray-300 mb-1">--</div>
+                      <p className="text-xs text-gray-400">Sign in to see your rank</p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
@@ -159,11 +189,11 @@ export default function Home() {
           >
             Reservasi
           </Link>
-          <a href="https://wa.me/6281774934980?text=Halo%20admin%20Skyhook%20Coffee" target="_blank" rel="noopener noreferrer"
+          <Link href="/menu/info"
             className="bg-[#2E2E2E] hover:bg-black text-white rounded-full px-8 py-3 text-sm font-semibold tracking-wide transition-all hover:shadow-lg active:scale-[0.97]"
           >
             Info
-          </a>
+          </Link>
         </div>
       </section>
 
@@ -171,8 +201,8 @@ export default function Home() {
       <section className="w-full bg-gray-50 py-10">
         <div className="max-w-5xl mx-auto px-4 grid grid-cols-2 md:grid-cols-3 gap-3">
           {galleryImages.map((src, i) => (
-            <div key={i} className="overflow-hidden rounded-lg shadow-sm">
-              <img src={src} alt={`Gallery ${i + 1}`} className="w-full h-auto block hover:scale-105 transition-transform duration-500" />
+            <div key={i} className="overflow-hidden rounded-lg shadow-sm relative aspect-[4/3]">
+              <Image src={src} alt={`Gallery ${i + 1}`} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover hover:scale-105 transition-transform duration-500" />
             </div>
           ))}
         </div>

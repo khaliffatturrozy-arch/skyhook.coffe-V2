@@ -1,24 +1,35 @@
 "use client"
 
+import { useState, lazy, Suspense } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { ShoppingBag, Trash2, Minus, Plus, X } from "lucide-react"
+import { ShoppingBag, Trash2, Minus, Plus, X, CreditCard, Loader2, CheckCircle } from "lucide-react"
 import { useCartStore } from "@/store/cart"
+
+const PayModal = lazy(() => import("@/components/payment/pay-modal").then((m) => ({ default: m.PayModal })))
 
 export function CartDrawer() {
   const { items, open, setOpen, removeItem, updateQuantity, clearCart, total } = useCartStore()
+  const [placing, setPlacing] = useState(false)
+  const [orderResult, setOrderResult] = useState<{ id: string; total: number } | null>(null)
+  const [showPay, setShowPay] = useState(false)
 
   async function handleCheckout() {
-    const res = await fetch("/api/orders/create", {
-      method: "POST",
-      body: JSON.stringify({
-        items: items.map((i) => ({ menu_item_id: i.id, quantity: i.quantity, price: i.price, notes: i.notes })),
-      }),
-    })
-    const data = await res.json()
-    if (data.order) {
-      window.location.href = `/receipt?id=${data.order.id}`
-      clearCart()
+    setPlacing(true)
+    try {
+      const res = await fetch("/api/orders/create", {
+        method: "POST",
+        body: JSON.stringify({
+          items: items.map((i) => ({ menu_item_id: i.id, name: i.name, price: i.price, quantity: i.quantity, notes: i.notes })),
+        }),
+      })
+      const data = await res.json()
+      if (data.order) {
+        setOrderResult({ id: data.order.id, total: data.order.total })
+        clearCart()
+      }
+    } finally {
+      setPlacing(false)
     }
   }
 
@@ -29,7 +40,7 @@ export function CartDrawer() {
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-40 bg-black/30"
-            onClick={() => setOpen(false)}
+            onClick={() => { setOpen(false); setOrderResult(null) }}
           />
           <motion.div
             initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
@@ -42,11 +53,28 @@ export function CartDrawer() {
                 <h2 className="text-xl font-bold text-[#212121]">Your Order</h2>
                 <span className="text-gray-400 text-sm">({items.length})</span>
               </div>
-              <button onClick={() => setOpen(false)} className="p-1 text-gray-400 hover:text-black"><X className="w-5 h-5" /></button>
+              <button onClick={() => { setOpen(false); setOrderResult(null) }} className="p-1 text-gray-400 hover:text-black"><X className="w-5 h-5" /></button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-3" style={{ height: "calc(100% - 180px)" }}>
-              {items.length === 0 ? (
+              {orderResult ? (
+                <div className="text-center py-12">
+                  <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-7 h-7 text-emerald-600" />
+                  </div>
+                  <p className="text-lg font-bold text-[#212121] mb-1">Order Placed!</p>
+                  <p className="text-sm text-gray-400 mb-6">IDR {orderResult.total.toLocaleString()}</p>
+                  <div className="flex flex-col gap-2">
+                    <Button variant="primary" className="w-full" onClick={() => setShowPay(true)}>
+                      <CreditCard className="w-4 h-4 mr-2" /> Pay Now
+                    </Button>
+                    <Button variant="ghost" className="w-full" onClick={() => { setOpen(false); setOrderResult(null) }}>
+                      Pay Later
+                    </Button>
+                  </div>
+                  <Suspense><PayModal isOpen={showPay} onClose={() => setShowPay(false)} total={orderResult.total} orderId={orderResult.id} /></Suspense>
+                </div>
+              ) : items.length === 0 ? (
                 <div className="text-center py-12">
                   <ShoppingBag className="w-12 h-12 text-gray-200 mx-auto mb-3" />
                   <p className="text-gray-400 text-sm">Your cart is empty</p>
@@ -71,7 +99,7 @@ export function CartDrawer() {
               )}
             </div>
 
-            {items.length > 0 && (
+            {items.length > 0 && !orderResult && (
               <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100 bg-white">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-gray-500 text-sm">Total</span>
@@ -79,7 +107,10 @@ export function CartDrawer() {
                 </div>
                 <div className="flex gap-2">
                   <Button variant="ghost" size="sm" onClick={clearCart}>Clear</Button>
-                  <Button variant="primary" className="flex-1" onClick={handleCheckout}>Place Order</Button>
+                  <Button variant="primary" className="flex-1" onClick={handleCheckout} disabled={placing}>
+                    {placing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                    {placing ? "Placing..." : "Place Order"}
+                  </Button>
                 </div>
               </div>
             )}

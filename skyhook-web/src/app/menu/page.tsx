@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase"
 import type { MenuItem, Category } from "@/types"
 import { useCartStore } from "@/store/cart"
-import { Search, X, Minus, Plus, ShoppingBag, Clock, ChefHat, Sparkles, Star } from "lucide-react"
+import { Search, X, Minus, Plus, ShoppingBag, Clock, ChefHat, Sparkles, Star, AlertCircle } from "lucide-react"
 
 const POINTS_PER_1000 = 1
 
@@ -51,21 +52,39 @@ export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState("All")
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null)
   const { items, addItem, updateQuantity } = useCartStore()
 
   useEffect(() => {
     const supabase = createClient()
+    let cancelled = false
+    const timeout = setTimeout(() => {
+      if (!cancelled) { setError("Request timed out. Please check your connection and try again."); setLoading(false) }
+    }, 15000)
     async function fetchData() {
-      const [catRes, menuRes] = await Promise.all([
-        supabase.from("categories").select("*").order("sort_order"),
-        supabase.from("menu").select("*").order("sort_order"),
-      ])
-      if (catRes.data) setCategories(catRes.data)
-      if (menuRes.data) setMenuItems(menuRes.data)
-      setLoading(false)
+      try {
+        const [catRes, menuRes] = await Promise.all([
+          supabase.from("categories").select("*").order("sort_order"),
+          supabase.from("menu").select("*").order("sort_order"),
+        ])
+        if (cancelled) return
+        clearTimeout(timeout)
+        if (catRes.error) throw new Error(catRes.error.message)
+        if (menuRes.error) throw new Error(menuRes.error.message)
+        if (catRes.data) setCategories(catRes.data)
+        if (menuRes.data) setMenuItems(menuRes.data)
+        if (!catRes.data?.length && !menuRes.data?.length) {
+          setError("Menu is empty. No items have been added yet.")
+        }
+      } catch (err) {
+        if (!cancelled) { setError(err instanceof Error ? err.message : "Failed to load menu"); clearTimeout(timeout) }
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
     }
     fetchData()
+    return () => { cancelled = true; clearTimeout(timeout) }
   }, [])
 
   const categoryNameMap: Record<string, string> = {}
@@ -91,6 +110,23 @@ export default function MenuPage() {
             <ChefHat className="w-6 h-6 text-gray-300" />
           </div>
           <p className="text-[rgba(33,33,33,0.4)] text-sm">Loading menu...</p>
+        </div>
+      </main>
+    )
+  }
+
+  if (error) {
+    return (
+      <main className="min-h-screen bg-white pt-20 flex items-center justify-center">
+        <div className="text-center max-w-sm px-4">
+          <div className="w-12 h-12 rounded-full bg-red-50 mx-auto mb-4 flex items-center justify-center">
+            <AlertCircle className="w-6 h-6 text-red-400" />
+          </div>
+          <p className="text-sm text-[rgba(33,33,33,0.6)] mb-3">{error}</p>
+          <button onClick={() => window.location.reload()}
+            className="text-xs text-[rgba(33,33,33,0.4)] hover:text-[#212121] underline transition-colors">
+            Try again
+          </button>
         </div>
       </main>
     )
@@ -180,7 +216,7 @@ export default function MenuPage() {
                 >
                   <div className={`relative h-28 md:h-32 ${item.image_url ? '' : `bg-gradient-to-br ${categoryGradients[catName] || 'from-gray-600 to-gray-800'}`} flex items-center justify-center overflow-hidden`}>
                     {item.image_url ? (
-                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                      <Image src={item.image_url} alt={item.name} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
                       <span className="text-5xl md:text-6xl opacity-60">{categoryIcons[catName] || "🍽️"}</span>
                     )}
@@ -285,7 +321,7 @@ export default function MenuPage() {
                 {/* Image */}
                 <div className={`relative h-52 ${selectedItem.image_url ? '' : `bg-gradient-to-br ${categoryGradients[categoryNameMap[selectedItem.category_id]] || 'from-gray-600 to-gray-800'}`} flex items-center justify-center overflow-hidden`}>
                   {selectedItem.image_url ? (
-                    <img src={selectedItem.image_url} alt={selectedItem.name} className="w-full h-full object-cover" />
+                    <Image src={selectedItem.image_url} alt={selectedItem.name} fill sizes="448px" className="object-cover" />
                   ) : (
                     <span className="text-8xl opacity-40">{categoryIcons[categoryNameMap[selectedItem.category_id]] || "🍽️"}</span>
                   )}

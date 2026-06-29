@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = await createServerSupabase()
-    const { data: event, error: evErr } = await supabase.from("events").select("*").eq("id", event_id).single()
+    const { data: event, error: evErr } = await supabase.from("events").select("*").eq("id", event_id).maybeSingle()
     if (evErr || !event) return NextResponse.json({ error: "Event not found" }, { status: 404 })
     if (event.capacity && event.tickets_sold + quantity > event.capacity) {
       return NextResponse.json({ error: "Not enough tickets available" }, { status: 400 })

@@ -1,10 +1,25 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { GlassCard } from "@/components/ui/glass-card"
-import { Button } from "@/components/ui/button"
+import { motion } from "framer-motion"
+import { AdminSectionHeader, AdminGlassTable } from "@/components/admin/admin-glass-card"
 import { AdminModal } from "@/components/admin/admin-modal"
-import { Plus, Calendar, Users, DollarSign, Edit2, Trash2 } from "lucide-react"
+import { Plus, Calendar, Users, DollarSign, Edit2, Trash2, Loader2, Music, PartyPopper, GraduationCap, Crown } from "lucide-react"
+
+const TYPE_ICONS: Record<string, any> = { music: Music, party: PartyPopper, workshop: GraduationCap, vip: Crown }
+const TYPE_COLORS: Record<string, string> = {
+  music: "from-rose-500/10 to-pink-500/5 text-rose-400 border-rose-500/20",
+  party: "from-amber-500/10 to-yellow-500/5 text-amber-400 border-amber-500/20",
+  workshop: "from-blue-500/10 to-cyan-500/5 text-blue-400 border-blue-500/20",
+  vip: "from-violet-500/10 to-purple-500/5 text-violet-400 border-violet-500/20",
+}
+const STATUS_STYLES: Record<string, string> = {
+  active: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+  draft: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+  cancelled: "bg-red-500/10 text-red-400 border-red-500/20",
+  full: "bg-violet-500/10 text-violet-400 border-violet-500/20",
+  finished: "bg-white/5 text-white/30 border-white/10",
+}
 
 export default function AdminEventsPage() {
   const [events, setEvents] = useState<any[]>([])
@@ -12,6 +27,7 @@ export default function AdminEventsPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<any | null>(null)
   const [saving, setSaving] = useState(false)
+  const [statusFilter, setStatusFilter] = useState("all")
   const [form, setForm] = useState({ title: "", description: "", date: "", time: "", venue: "", type: "music", price: 0, capacity: 0, image_url: "", status: "active" })
 
   async function load() {
@@ -55,40 +71,82 @@ export default function AdminEventsPage() {
     if (res.ok) load()
   }
 
+  const filtered = statusFilter === "all" ? events : events.filter((e) => e.status === statusFilter)
+
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="font-heading text-2xl font-bold">Events Management</h1>
-          <p className="text-white/40 text-sm mt-1">Manage rooftop events, live music, and VIP experiences</p>
-        </div>
-        <Button variant="primary" onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> Create Event</Button>
+    <div className="space-y-6">
+      <AdminSectionHeader
+        title="Events"
+        description="Manage rooftop events, live music, VIP experiences"
+        action={
+          <button onClick={openAdd}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-semibold hover:from-amber-400 hover:to-orange-400 transition-all shadow-lg shadow-amber-500/25">
+            <Plus className="w-4 h-4" /> Create Event
+          </button>
+        }
+      />
+
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        <button onClick={() => setStatusFilter("all")}
+          className={`px-3.5 py-2 rounded-xl text-xs font-medium transition-all ${
+            statusFilter === "all" ? "bg-amber-500/15 text-amber-400 border border-amber-500/20" : "bg-white/5 text-white/30 border border-transparent hover:text-white/60"}`}>All ({events.length})</button>
+        {["active", "draft", "cancelled", "finished"].map((s) => (
+          <button key={s} onClick={() => setStatusFilter(s)}
+            className={`px-3.5 py-2 rounded-xl text-xs font-medium capitalize transition-all ${
+              statusFilter === s ? "bg-amber-500/15 text-amber-400 border border-amber-500/20" : "bg-white/5 text-white/30 border border-transparent hover:text-white/60"
+            }`}>{s} ({events.filter((e) => e.status === s).length})</button>
+        ))}
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-3 gap-4">{[1, 2, 3].map((i) => <div key={i} className="h-40 rounded-2xl bg-white/5 animate-pulse" />)}</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{[1,2,3].map((i) => <div key={i} className="h-44 rounded-3xl bg-white/5 animate-pulse" />)}</div>
       ) : events.length === 0 ? (
-        <GlassCard><p className="text-white/20 text-center py-8">No events yet</p></GlassCard>
+        <div className="backdrop-blur-2xl bg-gradient-to-br from-white/[0.06] to-white/[0.02] rounded-[20px] border border-white/10 p-12 text-center">
+          <Calendar className="w-10 h-10 text-white/10 mx-auto mb-3" />
+          <p className="text-white/20 text-sm">No events yet</p>
+        </div>
       ) : (
-        <div className="grid grid-cols-3 gap-4">
-          {events.map((event: any) => (
-            <GlassCard key={event.id}>
-              <div className="flex items-center justify-between mb-3">
-                <Calendar className="w-5 h-5 text-skyhook-amber" />
-                <span className={`text-xs px-2 py-1 rounded-full ${event.status === "active" ? "bg-emerald-500/10 text-emerald-400" : "bg-skyhook-amber/10 text-skyhook-amber"}`}>{event.status}</span>
-              </div>
-              <h3 className="text-white font-semibold mb-2">{event.title}</h3>
-              <p className="text-white/30 text-xs mb-3">{new Date(event.date).toLocaleDateString()} at {event.time}</p>
-              <div className="flex items-center gap-4 text-xs text-white/40 mb-3">
-                <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {event.tickets_sold || 0}/{event.capacity}</span>
-                <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" /> {event.price === 0 ? "Free" : `IDR ${Number(event.price).toLocaleString()}`}</span>
-              </div>
-              <div className="flex gap-2">
-                <button onClick={() => openEdit(event)} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/40 hover:text-white text-xs transition-colors"><Edit2 className="w-3 h-3" /> Edit</button>
-                <button onClick={() => handleDelete(event.id)} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl bg-red-500/5 hover:bg-red-500/10 text-red-400/40 hover:text-red-400 text-xs transition-colors"><Trash2 className="w-3 h-3" /> Delete</button>
-              </div>
-            </GlassCard>
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map((event: any, i: number) => {
+            const TypeIcon = TYPE_ICONS[event.type] || Calendar
+            const typeColor = TYPE_COLORS[event.type] || "bg-white/5 text-white/40 border-white/10"
+            return (
+              <motion.div key={event.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.04 }}
+                className="relative group"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-white/[0.01] rounded-[20px]" />
+                <div className="relative backdrop-blur-2xl bg-gradient-to-br from-white/[0.06] to-white/[0.02] rounded-[20px] border border-white/10 p-5 transition-all duration-300 hover:border-white/20 h-full flex flex-col">
+                  {event.image_url && (
+                    <div className="w-full h-28 rounded-2xl overflow-hidden mb-4 -mx-0">
+                      <img src={event.image_url} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${typeColor}`}>
+                      <TypeIcon className="w-4 h-4" />
+                    </div>
+                    <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border capitalize ${
+                      STATUS_STYLES[event.status] || "bg-white/5 text-white/40 border-white/10"
+                    }`}>{event.status}</span>
+                  </div>
+                  <h3 className="text-sm font-semibold text-white mb-1">{event.title}</h3>
+                  <p className="text-xs text-white/30 mb-3">{event.date?.slice(0, 10)} at {event.time}</p>
+                  <p className="text-xs text-white/20 mb-3 line-clamp-2">{event.description || ""}</p>
+                  <div className="flex items-center gap-3 text-xs text-white/40 mt-auto mb-3">
+                    <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {event.tickets_sold || 0}/{event.capacity || "-"}</span>
+                    <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" /> {event.price === 0 ? "Free" : `IDR ${Number(event.price).toLocaleString()}`}</span>
+                  </div>
+                  <div className="flex gap-2 mt-auto">
+                    <button onClick={() => openEdit(event)} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/40 hover:text-white text-xs transition-all"><Edit2 className="w-3 h-3" /> Edit</button>
+                    <button onClick={() => handleDelete(event.id)} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl bg-red-500/5 hover:bg-red-500/10 text-red-400/40 hover:text-red-400 text-xs transition-all"><Trash2 className="w-3 h-3" /> Delete</button>
+                  </div>
+                </div>
+              </motion.div>
+            )
+          })}
         </div>
       )}
 

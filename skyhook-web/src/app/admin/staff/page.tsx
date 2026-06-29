@@ -111,9 +111,14 @@ export default function AdminStaffPage() {
         title={editing ? "Edit Staff" : "Add Staff"}
         fields={[
           { name: "role", label: "Role", type: "select", options: [
-            { value: "barista", label: "Barista" }, { value: "chef", label: "Chef" },
-            { value: "server", label: "Server" }, { value: "manager", label: "Manager" },
-            { value: "admin", label: "Admin" },
+            { value: "admin", label: "Admin — Full Access" },
+            { value: "manager", label: "Manager — Operations" },
+            { value: "cashier", label: "Cashier — POS & Payment" },
+            { value: "server", label: "Server — Table Service" },
+            { value: "host", label: "Host — Reception" },
+            { value: "kitchen", label: "Kitchen — Food Preparation" },
+            { value: "chef", label: "Chef — Head Kitchen" },
+            { value: "bartender", label: "Bartender — Bar & Drinks" },
           ]},
           { name: "hourly_rate", label: "Hourly Rate (IDR)", type: "number" },
           { name: "joined_at", label: "Joined Date", type: "text" },

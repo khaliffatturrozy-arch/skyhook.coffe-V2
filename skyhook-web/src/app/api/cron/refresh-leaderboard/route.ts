@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server"
 import { createServerSupabase } from "@/lib/supabase-server"
 
-export async function GET() {
+export async function GET(request: Request) {
+  const authHeader = request.headers.get("authorization")
+  const cronSecret = process.env.CRON_SECRET
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 })
+  }
+
   try {
     const supabase = await createServerSupabase()
     const { error } = await supabase.rpc("refresh_leaderboard")

@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
       .from("orders")
       .select("*, order_items(*), tables(table_number)")
       .eq("id", orderId)
-      .single()
+      .maybeSingle()
 
     if (error) throw error
     if (!order) {
